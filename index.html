@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>هساب — ماشین‌حساب کارگاهی</title>
 <meta name="description" content="هساب — ماشین‌حساب کارگاهی پیشرفته: محاسبه، کسورات صورت وضعیت، آسفالت، مالی، تبدیل واحدها و تاریخ">
 <meta name="theme-color" id="metaThemeColor" content="#0f1420">
@@ -30,6 +30,9 @@ html[data-theme="light"]{
   --input:#f7f9fc; --nav:rgba(255,255,255,.94); --shadow:0 6px 24px rgba(30,50,90,.12);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{touch-action:manipulation;}
+button, a, input, select, textarea, label, .chip{touch-action:manipulation;}
+textarea{font-size:16px;}
 html,body{margin:0; padding:0;}
 body{
   font-family: Tahoma, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -154,7 +157,7 @@ nav.tabs a.active{color:var(--accent); background:var(--card2);}
 .so-head, .so-row{display:grid; grid-template-columns:1.3fr .6fr 1fr .9fr 36px; gap:6px; align-items:center;}
 .so-head{font-size:11.5px; color:var(--muted); margin-top:12px; padding:0 2px;}
 .so-row{margin-top:6px;}
-.so-row input, .so-row select{min-height:44px; font-size:14px; padding:6px 8px;}
+.so-row input, .so-row select{min-height:44px; font-size:16px; padding:6px 8px;}
 .so-row .amt{font-weight:bold; font-size:14px; direction:ltr; text-align:left;}
 .so-del{
   min-width:36px; min-height:44px; border-radius:10px; border:1px solid var(--line);
@@ -169,6 +172,25 @@ nav.tabs a.active{color:var(--accent); background:var(--card2);}
 .eq-list .outrow{border-bottom:1px solid var(--line);}
 .eq-list .outrow:last-child{border-bottom:none;}
 .todayline{font-size:13.5px; color:var(--accent); margin-bottom:12px;}
+/* ---------- calculator: fit the phone screen, no page scroll ---------- */
+body:has(#page-calc.active){overflow:hidden;}
+body:has(#page-calc.active) footer.app{display:none;}
+#page-calc.active{
+  display:flex; flex-direction:column;
+  height:calc(100vh - var(--sat) - var(--sab) - 150px);
+  height:calc(100dvh - var(--sat) - var(--sab) - 150px);
+}
+#page-calc .card{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; margin-bottom:0;}
+#page-calc .calc-display{flex:0 1 auto; min-height:58px; padding:10px 12px;}
+#page-calc .calc-expr{min-height:24px;}
+#page-calc .calc-res{min-height:20px;}
+#page-calc .calc-tools{flex:0 0 auto; margin:8px 0 2px;}
+#page-calc .mpad{flex:1 1 0; min-height:0; grid-auto-rows:1fr; margin-top:6px;}
+#page-calc .fpad{flex:4 1 0; min-height:0; grid-auto-rows:1fr; margin-top:6px;}
+#page-calc .pad{flex:6 1 0; min-height:0; grid-auto-rows:1fr; margin-top:6px;}
+#page-calc .mpad button, #page-calc .fpad button, #page-calc .pad button{height:100%; min-height:0;}
+#page-calc .hist{flex:0 1 auto; min-height:0; max-height:34%; overflow-y:auto;}
+#page-calc .hint{flex:0 1 auto; min-height:0; overflow-y:auto;}
 footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--muted); font-size:11.5px; text-align:center;}
 </style>
 </head>
@@ -1501,6 +1523,25 @@ if (typeof document !== 'undefined') {
   computeUnits();
   computeDates();
 }
+</script>
+<script>
+/* ---------- no tap / double-tap zoom guards (shell only) ---------- */
+(function(){
+  document.addEventListener('gesturestart', function(e){ e.preventDefault(); });
+  document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
+  function inField(t){
+    if(!t || !t.tagName) return false;
+    if(t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return true;
+    return !!(t.closest && t.closest('input, textarea, select'));
+  }
+  var lastEnd = 0, lastTarget = null;
+  document.addEventListener('touchend', function(e){
+    var now = Date.now();
+    if(!inField(e.target) && e.target === lastTarget && now - lastEnd <= 300){ e.preventDefault(); }
+    lastEnd = now; lastTarget = e.target;
+  }, {passive:false});
+  document.addEventListener('dblclick', function(e){ if(!inField(e.target)) e.preventDefault(); });
+})();
 </script>
 </body>
 </html>
