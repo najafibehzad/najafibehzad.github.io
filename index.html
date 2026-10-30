@@ -126,6 +126,8 @@ nav.tabs a.active{color:var(--accent); background:var(--card2);}
 .calc-mem{font-size:12px; color:var(--muted); direction:ltr; text-align:left;}
 .calc-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0;}
 .calc-tools .btn{flex:1; white-space:nowrap;}
+/* hidden native switch used only for the iOS haptic tick (rendered, but invisible) */
+.haptic-hidden{position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none;}
 .padarea{flex:1 1 0; min-height:0; display:flex; flex-direction:column; margin-top:8px;}
 .pad{display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(5,1fr); gap:8px; direction:ltr; flex:1 1 0; min-height:0;}
 .pad button{
@@ -246,6 +248,7 @@ footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--mu
       <button class="btn small" id="btnHist" type="button">🕘 تاریخچه</button>
       <button class="btn small" id="btnCopyRes" type="button">⧉ کپی نتیجه</button>
     </div>
+    <label class="haptic-hidden" id="iosHapticLbl" aria-hidden="true"><input type="checkbox" switch id="iosHapticSw" tabindex="-1"></label>
     <div class="mpad" id="memPad">
       <button type="button" data-mem="MS">MS</button>
       <button type="button" data-mem="M+">M+</button>
@@ -1184,7 +1187,15 @@ if (typeof document !== 'undefined') {
   let vibOn = store.get().vib !== false;
   let justEvaled = false;
   let historyCalc = Array.isArray(store.get().historyCalc) ? store.get().historyCalc : [];
-  function buzz() { if (vibOn && navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} } }
+  function buzz() {
+    if (!vibOn) return;
+    try {
+      if (navigator.vibrate) { navigator.vibrate(10); return; }
+    } catch (e) {}
+    /* iOS has no Vibration API: flipping a hidden native switch ticks the
+       Taptic Engine in Safari (iOS 17.4+); everywhere else it is a silent no-op. */
+    try { const l = $('iosHapticLbl'); if (l) l.click(); } catch (e) {}
+  }
   function dispExpr() {
     return expr.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−').replace(/sqrt/g, '√');
   }
