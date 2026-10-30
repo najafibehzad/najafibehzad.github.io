@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>هساب — ماشین‌حساب کارگاهی</title>
+<meta name="description" content="هساب — ماشین‌حساب کارگاهی پیشرفته: محاسبه، کسورات صورت وضعیت، آسفالت، مالی، تبدیل واحدها و تاریخ">
+<meta name="theme-color" id="metaThemeColor" content="#0f1420">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="هساب">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='38' fill='%231a2233'/%3E%3Ctext x='90' y='120' font-size='86' text-anchor='middle' fill='%23ffb020' font-family='Tahoma, sans-serif'%3E%D8%AD%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='38' fill='%231a2233'/%3E%3Ctext x='90' y='120' font-size='86' text-anchor='middle' fill='%23ffb020' font-family='Tahoma, sans-serif'%3E%D8%AD%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+html[data-theme="dark"]{
+  --bg:#0f1420; --bg2:#131a29; --card:#1a2233; --card2:#212c42;
+  --text:#e9edf5; --muted:#95a1b5; --line:#2b3850;
+  --accent:#ffb020; --accent2:#2f81f7; --good:#3fb96f; --bad:#f06666;
+  --input:#121927; --nav:rgba(15,20,32,.92); --shadow:0 6px 24px rgba(0,0,0,.35);
+}
+html[data-theme="light"]{
+  --bg:#eef1f6; --bg2:#e6ebf2; --card:#ffffff; --card2:#f2f5f9;
+  --text:#182130; --muted:#5d6a7e; --line:#d4dbe6;
+  --accent:#d98e00; --accent2:#1f6feb; --good:#1d9e57; --bad:#d64545;
+  --input:#f7f9fc; --nav:rgba(255,255,255,.94); --shadow:0 6px 24px rgba(30,50,90,.12);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0;}
+body{
+  font-family: Tahoma, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background:var(--bg); color:var(--text);
+  padding-top: var(--sat);
+  padding-bottom: calc(76px + var(--sab));
+  min-height:100vh;
+}
+header.app{
+  position:sticky; top:0; z-index:30;
+  background:var(--nav); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px; display:flex; align-items:center; gap:10px;
+}
+header.app .ttl{flex:1; min-width:0;}
+header.app h1{margin:0; font-size:20px; font-weight:bold; letter-spacing:.2px;}
+header.app .sub{margin:2px 0 0; font-size:12px; color:var(--muted);}
+.iconbtn{
+  min-width:44px; min-height:44px; border-radius:12px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); font-size:18px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; padding:0 10px;
+}
+.iconbtn:active{transform:scale(.97);}
+main{max-width:720px; margin:0 auto; padding:14px 12px 8px;}
+section.page{display:none;}
+section.page.active{display:block; animation:fade .18s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:14px; margin-bottom:14px; box-shadow:var(--shadow);
+}
+.card h2{margin:0 0 4px; font-size:16px;}
+.card h3{margin:0 0 8px; font-size:15px;}
+.card .hint{font-size:12px; color:var(--muted); line-height:1.9; margin:6px 0 0;}
+label.fl{display:block; font-size:12.5px; color:var(--muted); margin:10px 0 5px;}
+input[type="text"], input[type="number"], select{
+  width:100%; min-height:44px; border-radius:10px; border:1px solid var(--line);
+  background:var(--input); color:var(--text); font-size:16px; padding:8px 10px;
+  font-family:inherit; outline:none;
+}
+input:focus, select:focus{border-color:var(--accent2);}
+input.ltr{direction:ltr; text-align:left;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+@media (max-width:520px){ .grid3{grid-template-columns:1fr 1fr;} }
+.outs{margin-top:12px; border-top:1px dashed var(--line); padding-top:10px;}
+.outrow{display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:5px 0; font-size:14px;}
+.outrow .k{color:var(--muted);}
+.outrow .v{font-weight:bold; font-size:16px; direction:ltr; unicode-bidi:embed;}
+.outrow .v.fa{direction:rtl;}
+.outrow.big .v{font-size:19px; color:var(--accent);}
+.words{margin-top:8px; font-size:13px; line-height:2; color:var(--good);}
+.btn{
+  min-height:44px; border-radius:10px; border:1px solid var(--line); cursor:pointer;
+  background:var(--card2); color:var(--text); font-size:14px; padding:8px 14px; font-family:inherit;
+}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#1a1405; font-weight:bold;}
+.btn.small{min-height:38px; font-size:13px; padding:6px 10px;}
+.btn:active{transform:scale(.98);}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.chip{
+  min-height:38px; padding:6px 12px; border-radius:999px; border:1px solid var(--line);
+  background:var(--card2); color:var(--text); font-size:13px; cursor:pointer; font-family:inherit;
+}
+.chip:active{border-color:var(--accent); color:var(--accent);}
+.chk{display:flex; align-items:center; gap:8px; font-size:14px; margin-top:12px; cursor:pointer; min-height:44px;}
+.chk input{width:20px; height:20px; accent-color:var(--accent);}
+.note{margin-top:10px; font-size:12.5px; line-height:2; color:var(--muted); background:var(--card2); border-radius:10px; padding:8px 10px;}
+/* ---------- bottom nav ---------- */
+nav.tabs{
+  position:fixed; right:0; left:0; bottom:0; z-index:40;
+  background:var(--nav); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top:1px solid var(--line);
+  padding:6px 4px calc(6px + var(--sab));
+  display:flex; justify-content:space-around;
+}
+nav.tabs a{
+  flex:1; text-align:center; text-decoration:none; color:var(--muted);
+  font-size:11.5px; padding:6px 2px; border-radius:10px; min-height:52px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+}
+nav.tabs a .ic{font-size:20px; line-height:1;}
+nav.tabs a.active{color:var(--accent); background:var(--card2);}
+/* ---------- calculator ---------- */
+.calc-display{
+  background:var(--input); border:1px solid var(--line); border-radius:14px; padding:12px;
+  min-height:92px; display:flex; flex-direction:column; justify-content:flex-end; gap:4px;
+}
+.calc-expr{font-size:21px; direction:ltr; text-align:left; word-break:break-all; min-height:28px;}
+.calc-res{font-size:15px; color:var(--accent); direction:ltr; text-align:left; min-height:22px;}
+.calc-mem{font-size:12px; color:var(--muted); direction:ltr; text-align:left;}
+.calc-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0;}
+.calc-tools .btn{flex:1; white-space:nowrap;}
+.pad{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;}
+.pad button{
+  min-height:52px; font-size:19px; border-radius:12px; border:1px solid var(--line);
+  background:var(--card2); color:var(--text); cursor:pointer; font-family:inherit;
+}
+.pad button.op{color:var(--accent); font-weight:bold;}
+.pad button.eq{background:var(--accent); color:#1a1405; font-weight:bold; border-color:var(--accent);}
+.pad button:active{transform:scale(.96);}
+.fpad{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px;}
+.fpad button{
+  min-height:44px; font-size:13.5px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card); color:var(--text); cursor:pointer; font-family:inherit; direction:ltr;
+}
+.fpad button:active{transform:scale(.96); border-color:var(--accent2);}
+.mpad{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px;}
+.mpad button{
+  min-height:44px; font-size:13.5px; border-radius:10px; border:1px dashed var(--line);
+  background:transparent; color:var(--muted); cursor:pointer; font-family:inherit;
+}
+.hist{display:none; margin-top:10px; border-top:1px dashed var(--line); padding-top:8px;}
+.hist.open{display:block;}
+.hist .hrow{
+  display:flex; justify-content:space-between; gap:10px; padding:7px 4px; font-size:14px;
+  border-bottom:1px solid var(--line); direction:ltr; text-align:left;
+}
+.hist .hrow .r{color:var(--accent); font-weight:bold;}
+.hist .empty{color:var(--muted); font-size:13px; text-align:center; padding:8px;}
+/* ---------- soorat rows ---------- */
+.so-head, .so-row{display:grid; grid-template-columns:1.3fr .6fr 1fr .9fr 36px; gap:6px; align-items:center;}
+.so-head{font-size:11.5px; color:var(--muted); margin-top:12px; padding:0 2px;}
+.so-row{margin-top:6px;}
+.so-row input, .so-row select{min-height:44px; font-size:14px; padding:6px 8px;}
+.so-row .amt{font-weight:bold; font-size:14px; direction:ltr; text-align:left;}
+.so-del{
+  min-width:36px; min-height:44px; border-radius:10px; border:1px solid var(--line);
+  background:var(--card2); color:var(--bad); font-size:15px; cursor:pointer;
+}
+@media (max-width:520px){
+  .so-head{display:none;}
+  .so-row{grid-template-columns:1fr .55fr; grid-auto-rows:auto;}
+  .so-row .amt{grid-column:1 / -1;}
+}
+.eq-list{margin-top:8px;}
+.eq-list .outrow{border-bottom:1px solid var(--line);}
+.eq-list .outrow:last-child{border-bottom:none;}
+.todayline{font-size:13.5px; color:var(--accent); margin-bottom:12px;}
+footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--muted); font-size:11.5px; text-align:center;}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="ttl">
+    <h1>هساب</h1>
+    <p class="sub">ماشین‌حساب کارگاهی پیشرفته</p>
+  </div>
+  <button class="iconbtn" id="btnTheme" type="button" title="تغییر تم" aria-label="تغییر تم">☾</button>
+  <button class="iconbtn" id="btnNavHide" type="button" title="پنهان‌کردن منو" aria-label="پنهان‌کردن منو">▾</button>
+</header>
+<main>
+<!-- ==================== محاسبه ==================== -->
+<section class="page" id="page-calc" data-page="calc">
+  <div class="card">
+    <div class="calc-display">
+      <div class="calc-mem" id="calcMem">M: —</div>
+      <div class="calc-expr" id="calcExpr"></div>
+      <div class="calc-res" id="calcRes"></div>
+    </div>
+    <div class="calc-tools">
+      <button class="btn small" id="btnAngle" type="button">درجه</button>
+      <button class="btn small" id="btnVib" type="button">📳 ویبره: روشن</button>
+      <button class="btn small" id="btnHist" type="button">🕘 تاریخچه</button>
+      <button class="btn small" id="btnCopyRes" type="button">⧉ کپی نتیجه</button>
+    </div>
+    <div class="mpad" id="memPad">
+      <button type="button" data-mem="MS">MS</button>
+      <button type="button" data-mem="M+">M+</button>
+      <button type="button" data-mem="M-">M−</button>
+      <button type="button" data-mem="MR">MR</button>
+      <button type="button" data-mem="ANS">ANS</button>
+    </div>
+    <div class="fpad" id="fnPad">
+      <button type="button" data-fn="sin">sin</button>
+      <button type="button" data-fn="cos">cos</button>
+      <button type="button" data-fn="tan">tan</button>
+      <button type="button" data-fn="asin">asin</button>
+      <button type="button" data-fn="acos">acos</button>
+      <button type="button" data-fn="atan">atan</button>
+      <button type="button" data-fn="sqrt">√</button>
+      <button type="button" data-fn="ln">ln</button>
+      <button type="button" data-fn="log">log</button>
+      <button type="button" data-fn="pow">xʸ</button>
+      <button type="button" data-fn="pi">π</button>
+      <button type="button" data-fn="e">e</button>
+      <button type="button" data-fn="fact">n!</button>
+      <button type="button" data-fn="min">min</button>
+      <button type="button" data-fn="max">max</button>
+      <button type="button" data-fn="abs">abs</button>
+      <button type="button" data-fn="exp">exp</button>
+      <button type="button" data-fn="round">round</button>
+      <button type="button" data-fn="floor">floor</button>
+      <button type="button" data-fn="ceil">ceil</button>
+    </div>
+    <div class="pad" id="numPad">
+      <button type="button" data-k="ac" class="op">AC</button>
+      <button type="button" data-k="bs" class="op">⌫</button>
+      <button type="button" data-k="(" class="op">(</button>
+      <button type="button" data-k=")" class="op">)</button>
+      <button type="button" data-k="7">7</button>
+      <button type="button" data-k="8">8</button>
+      <button type="button" data-k="9">9</button>
+      <button type="button" data-k="/" class="op">÷</button>
+      <button type="button" data-k="4">4</button>
+      <button type="button" data-k="5">5</button>
+      <button type="button" data-k="6">6</button>
+      <button type="button" data-k="*" class="op">×</button>
+      <button type="button" data-k="1">1</button>
+      <button type="button" data-k="2">2</button>
+      <button type="button" data-k="3">3</button>
+      <button type="button" data-k="-" class="op">−</button>
+      <button type="button" data-k="0">0</button>
+      <button type="button" data-k=".">.</button>
+      <button type="button" data-k="%" class="op">%</button>
+      <button type="button" data-k="eq" class="eq">=</button>
+      <button type="button" data-k="+">+</button>
+      <button type="button" data-k=",">,</button>
+    </div>
+    <div class="hist" id="histPanel">
+      <div class="btnrow" style="margin-top:0;">
+        <strong style="flex:1; font-size:14px;">تاریخچه</strong>
+        <button class="btn small" id="btnHistClear" type="button">پاک کردن</button>
+      </div>
+      <div id="histList"></div>
+    </div>
+    <p class="hint">توابع: sin cos tan asin acos atan sqrt ln log abs exp round floor ceil min max pow — ثابت‌ها: pi و e — آرگومان‌های min و max را با کاما جدا کن: min(3,5) — عملگر % هوشمند و فاکتوریل ! — مثل 200+10% = 220 — علامت / همان تقسیم است و جداکنندهٔ هزارگان کاما (خودکار اضافه می‌شود) — با کیبورد فیزیکی هم مستقیم تایپ کن (Enter = محاسبه)</p>
+  </div>
+</section>
+<!-- ==================== صورت وضعیت ==================== -->
+<section class="page" id="page-soorat" data-page="soorat">
+  <div class="card">
+    <h2>کسورات صورت وضعیت</h2>
+    <label class="fl" for="soGross">مبلغ ناخالص (ریال)</label>
+    <input type="text" id="soGross" class="money ltr" inputmode="numeric" placeholder="24/000/000">
+    <div class="so-head"><span>عنوان</span><span>درصد</span><span>پایه محاسبه</span><span>مبلغ (ریال)</span><span></span></div>
+    <div id="soRows"></div>
+    <div class="btnrow">
+      <button class="btn" id="soAdd" type="button">+ ردیف</button>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">جمع کسورات</span><span class="v" id="soTotal">0</span></div>
+      <div class="outrow big"><span class="k">خالص پرداختی</span><span class="v" id="soNet">0</span></div>
+      <div class="words" id="soWords"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn small" id="soCopy" type="button">⧉ کپی خلاصه</button>
+    </div>
+    <p class="hint">پایه «پس از کسور قبلی» یعنی ناخالص منهای کسوراتِ ردیف‌های قبل از این ردیف. درصدها و ردیف‌ها قابل تغییر و ذخیره دائمی‌اند.</p>
+  </div>
+</section>
+<!-- ==================== آسفالت ==================== -->
+<section class="page" id="page-asphalt" data-page="asphalt">
+  <div class="card">
+    <h3>وزن مصالح از حجم</h3>
+    <div class="grid2">
+      <div><label class="fl" for="awLen">طول (متر)</label><input type="text" id="awLen" class="ltr" inputmode="decimal"></div>
+      <div><label class="fl" for="awWid">عرض (متر)</label><input type="text" id="awWid" class="ltr" inputmode="decimal"></div>
+    </div>
+    <label class="fl" for="awArea">یا: مساحت دستی (مترمربع) — بدون طول و عرض</label>
+    <input type="text" id="awArea" class="ltr" inputmode="decimal">
+    <div class="grid2">
+      <div><label class="fl" for="awThick">ضخامت (سانتیمتر)</label><input type="text" id="awThick" class="ltr" inputmode="decimal"></div>
+      <div><label class="fl" for="awDens">چگالی (تن بر مترمکعب)</label><input type="text" id="awDens" class="ltr" inputmode="decimal"></div>
+    </div>
+    <label class="fl" for="awPreset">چگالی آماده</label>
+    <select id="awPreset">
+      <option value="">— انتخاب کنید —</option>
+      <option value="2.35">آسفالت ۲٫۳۵</option>
+      <option value="2.4">بتن ۲٫۴</option>
+      <option value="1.7">خاک ۱٫۷</option>
+      <option value="1.6">شن و ماسه ۱٫۶</option>
+    </select>
+    <div class="outs">
+      <div class="outrow"><span class="k">مساحت (مترمربع)</span><span class="v" id="awOutArea">—</span></div>
+      <div class="outrow"><span class="k">حجم (مترمکعب)</span><span class="v" id="awOutVol">—</span></div>
+      <div class="outrow big"><span class="k">وزن (تن)</span><span class="v" id="awOutWeight">—</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>قیمت و حمل</h3>
+    <p class="hint" id="ahWeightNote">وزن از کارت «وزن مصالح از حجم» خوانده می‌شود.</p>
+    <div class="grid2">
+      <div><label class="fl" for="ahPrice">قیمت هر تن (ریال)</label><input type="text" id="ahPrice" class="money ltr" inputmode="numeric"></div>
+      <div><label class="fl" for="ahCap">ظرفیت کمپرسی (تن)</label><input type="text" id="ahCap" class="ltr" inputmode="decimal" value="25"></div>
+    </div>
+    <div class="grid2">
+      <div><label class="fl" for="ahDist">فاصلهٔ حمل (کیلومتر)</label><input type="text" id="ahDist" class="ltr" inputmode="decimal"></div>
+      <div><label class="fl" for="ahRate">نرخ حمل (ریال بر تن‌کیلومتر)</label><input type="text" id="ahRate" class="money ltr" inputmode="numeric"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">مبلغ مصالح (ریال)</span><span class="v" id="ahMat">—</span></div>
+      <div class="outrow"><span class="k">تعداد سفر</span><span class="v" id="ahTrips">—</span></div>
+      <div class="outrow"><span class="k">هزینهٔ حمل (ریال)</span><span class="v" id="ahCost">—</span></div>
+      <div class="outrow big"><span class="k">جمع کل (ریال)</span><span class="v" id="ahTotal">—</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>کفپوش</h3>
+    <div class="grid3">
+      <div><label class="fl" for="afPL">طول قطعه (سانتیمتر)</label><input type="text" id="afPL" class="ltr" inputmode="decimal" value="20"></div>
+      <div><label class="fl" for="afPW">عرض قطعه (سانتیمتر)</label><input type="text" id="afPW" class="ltr" inputmode="decimal" value="20"></div>
+      <div><label class="fl" for="afWaste">درصد پرت و برش</label><input type="text" id="afWaste" class="ltr" inputmode="decimal" value="5"></div>
+    </div>
+    <label class="fl" for="afArea">مساحت کار (مترمربع)</label>
+    <input type="text" id="afArea" class="ltr" inputmode="decimal">
+    <label class="fl" for="afCount">یا برعکس — تعداد قطعه</label>
+    <input type="text" id="afCount" class="money ltr" inputmode="numeric">
+    <div class="outs">
+      <div class="outrow"><span class="k">مساحت هر قطعه (مترمربع)</span><span class="v" id="afPiece">—</span></div>
+      <div class="outrow"><span class="k">در هر مترمربع (قطعه)</span><span class="v" id="afPer">—</span></div>
+      <div class="outrow"><span class="k">تعداد لازم (با پرت)</span><span class="v" id="afNeed">—</span></div>
+      <div class="outrow"><span class="k">مساحت این تعداد (مترمربع)</span><span class="v" id="afAreaOf">—</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>جدول بتنی پیش‌ساخته</h3>
+    <div class="grid3">
+      <div><label class="fl" for="acH">ارتفاع (سانتیمتر)</label><input type="text" id="acH" class="ltr" inputmode="decimal" value="40"></div>
+      <div><label class="fl" for="acLen">طول قطعه (سانتیمتر) — معمولاً ثابت ۵۰</label><input type="text" id="acLen" class="ltr" inputmode="decimal" value="50"></div>
+      <div><label class="fl" for="acT">ضخامت (سانتیمتر)</label><input type="text" id="acT" class="ltr" inputmode="decimal" value="15"></div>
+    </div>
+    <label class="fl">نوع رایج</label>
+    <div class="btnrow" style="margin-top:0;">
+      <button class="chip" type="button" data-curb="40,15">۴۰×۱۵</button>
+      <button class="chip" type="button" data-curb="30,15">۳۰×۱۵</button>
+      <button class="chip" type="button" data-curb="50,15">۵۰×۱۵</button>
+      <button class="chip" type="button" data-curb="30,30">۳۰×۳۰</button>
+    </div>
+    <div class="grid2">
+      <div><label class="fl" for="acCount">تعداد (عدد)</label><input type="text" id="acCount" class="money ltr" inputmode="numeric"></div>
+      <div><label class="fl" for="acRows">تعداد ردیف — مثلاً نهر دو ردیفه = ۲</label><input type="text" id="acRows" class="ltr" inputmode="numeric" value="1"></div>
+    </div>
+    <label class="fl" for="acPath">یا: طول مسیر (متر) ← تعداد خودش حساب می‌شود</label>
+    <input type="text" id="acPath" class="ltr" inputmode="decimal">
+    <label class="chk"><input type="checkbox" id="acPress"> ماشین‌آلات پرسی</label>
+    <div class="grid2">
+      <div><label class="fl" for="acPricePiece">قیمت هر قطعه (ریال)</label><input type="text" id="acPricePiece" class="money ltr" inputmode="numeric"></div>
+      <div><label class="fl" for="acPriceM3">یا: قیمت هر مترمکعب (فهرست‌بها)</label><input type="text" id="acPriceM3" class="money ltr" inputmode="numeric"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">کل قطعات (عدد)</span><span class="v" id="acTotalPieces">—</span></div>
+      <div class="outrow"><span class="k">متراژ جدول‌گذاری (متر طول)</span><span class="v" id="acLength">—</span></div>
+      <div class="outrow"><span class="k">حجم بتن (مترمکعب)</span><span class="v" id="acVol">—</span></div>
+      <div class="outrow"><span class="k">وزن تقریبی (تن)</span><span class="v" id="acWeight">—</span></div>
+      <div class="outrow big"><span class="k">مبلغ کل (ریال)</span><span class="v" id="acTotal">—</span></div>
+    </div>
+    <div class="note" id="acNote"></div>
+  </div>
+  <div class="card">
+    <div class="btnrow" style="margin-top:0;">
+      <button class="btn" id="asCopy" type="button">⧉ کپی خلاصهٔ آسفالت</button>
+    </div>
+  </div>
+</section>
+<!-- ==================== مالی ==================== -->
+<section class="page" id="page-finance" data-page="finance">
+  <div class="card">
+    <h3>اقساط وام</h3>
+    <label class="fl" for="flAmt">مبلغ وام (ریال)</label>
+    <input type="text" id="flAmt" class="money ltr" inputmode="numeric">
+    <div class="grid2">
+      <div><label class="fl" for="flRate">نرخ سالانه (درصد)</label><input type="text" id="flRate" class="ltr" inputmode="decimal" value="23"></div>
+      <div><label class="fl" for="flMonths">مدت (ماه)</label><input type="text" id="flMonths" class="ltr" inputmode="numeric" value="36"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow big"><span class="k">قسط ماهانه (ریال)</span><span class="v" id="flPay">—</span></div>
+      <div class="outrow"><span class="k">کل بازپرداخت (ریال)</span><span class="v" id="flTotal">—</span></div>
+      <div class="outrow"><span class="k">کل سود (ریال)</span><span class="v" id="flInt">—</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>تنزیل چک</h3>
+    <label class="fl" for="fdAmt">مبلغ چک (ریال)</label>
+    <input type="text" id="fdAmt" class="money ltr" inputmode="numeric">
+    <div class="grid2">
+      <div><label class="fl" for="fdRate">نرخ تنزیل سالانه (درصد)</label><input type="text" id="fdRate" class="ltr" inputmode="decimal" value="30"></div>
+      <div><label class="fl" for="fdDays">روز تا سررسید</label><input type="text" id="fdDays" class="ltr" inputmode="numeric"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow big"><span class="k">ارزش امروز (ریال)</span><span class="v" id="fdPV">—</span></div>
+      <div class="outrow"><span class="k">مبلغ تنزیل (ریال)</span><span class="v" id="fdDisc">—</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>سود سپرده و درصد</h3>
+    <label class="fl" for="fsAmt">مبلغ سپرده (ریال)</label>
+    <input type="text" id="fsAmt" class="money ltr" inputmode="numeric">
+    <div class="grid2">
+      <div><label class="fl" for="fsRate">نرخ سالانه (درصد)</label><input type="text" id="fsRate" class="ltr" inputmode="decimal" value="20"></div>
+      <div><label class="fl" for="fsDays">مدت (روز)</label><input type="text" id="fsDays" class="ltr" inputmode="numeric" value="90"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">سود سپرده (ریال)</span><span class="v" id="fsProfit">—</span></div>
+      <div class="outrow"><span class="k">سود هر ماه (ریال)</span><span class="v" id="fsMonthly">—</span></div>
+    </div>
+    <div class="grid2">
+      <div><label class="fl" for="fpP">درصد (P)</label><input type="text" id="fpP" class="ltr" inputmode="decimal"></div>
+      <div><label class="fl" for="fpAmt">از مبلغ (ریال)</label><input type="text" id="fpAmt" class="money ltr" inputmode="numeric"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">مقدار (ریال)</span><span class="v" id="fpVal">—</span></div>
+    </div>
+    <div class="grid2">
+      <div><label class="fl" for="fpX">X</label><input type="text" id="fpX" class="ltr" inputmode="decimal"></div>
+      <div><label class="fl" for="fpY">Y</label><input type="text" id="fpY" class="ltr" inputmode="decimal"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">X چه درصدی از Y</span><span class="v" id="fpPct">—</span></div>
+    </div>
+  </div>
+</section>
+<!-- ==================== واحدها ==================== -->
+<section class="page" id="page-units" data-page="units">
+  <div class="card">
+    <h2>تبدیل واحدها</h2>
+    <label class="fl" for="unCat">دسته</label>
+    <select id="unCat"></select>
+    <label class="fl" for="unVal">مقدار</label>
+    <input type="text" id="unVal" class="ltr" inputmode="decimal" value="1">
+    <div class="grid2">
+      <div><label class="fl" for="unFrom">از</label><select id="unFrom"></select></div>
+      <div><label class="fl" for="unTo">به</label><select id="unTo"></select></div>
+    </div>
+    <div class="outs">
+      <div class="outrow big"><span class="k">نتیجه</span><span class="v" id="unResult">—</span></div>
+    </div>
+    <div class="eq-list" id="unList"></div>
+  </div>
+</section>
+<!-- ==================== تاریخ ==================== -->
+<section class="page" id="page-date" data-page="date">
+  <div class="todayline" id="todayLine"></div>
+  <div class="card">
+    <h3>تبدیل تاریخ شمسی ↔ میلادی</h3>
+    <div class="grid2">
+      <div><label class="fl" for="dcJ">شمسی</label><input type="text" id="dcJ" class="ltr" inputmode="numeric" placeholder="1405/08/08"></div>
+      <div><label class="fl" for="dcG">میلادی</label><input type="text" id="dcG" class="ltr" inputmode="numeric" placeholder="2026/09/23"></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="dcJ2G" type="button">شمسی → میلادی</button>
+      <button class="btn" id="dcG2J" type="button">میلادی → شمسی</button>
+      <button class="btn" id="dcToday" type="button">امروز</button>
+    </div>
+    <div class="words" id="dcMsg"></div>
+  </div>
+  <div class="card">
+    <h3>اختلاف دو تاریخ شمسی</h3>
+    <div class="grid2">
+      <div><label class="fl" for="ddFrom">از تاریخ</label><input type="text" id="ddFrom" class="ltr" inputmode="numeric" placeholder="1405/01/01"></div>
+      <div><label class="fl" for="ddTo">تا تاریخ</label><input type="text" id="ddTo" class="ltr" inputmode="numeric" placeholder="1405/02/01"></div>
+    </div>
+    <div class="outs">
+      <div class="outrow"><span class="k">فاصلهٔ تقویمی (روز)</span><span class="v" id="ddDays">—</span></div>
+      <div class="outrow"><span class="k">روزهای کاری (بدون پنجشنبه و جمعه)</span><span class="v" id="ddWork">—</span></div>
+    </div>
+    <p class="hint">از روز شروع تا روز قبل از پایان حساب می‌شود.</p>
+  </div>
+  <div class="card">
+    <h3>مهلت‌ها</h3>
+    <label class="fl" for="dlN">امروز + N روز</label>
+    <input type="text" id="dlN" class="ltr" inputmode="numeric">
+    <label class="chk"><input type="checkbox" id="dlWork"> فقط روزهای کاری</label>
+    <div class="outs">
+      <div class="outrow"><span class="v fa" id="dlOut" style="font-size:16px;">—</span></div>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="app">هساب — نسخهٔ مستقل آفلاین؛ همهٔ محاسبات روی همین دستگاه انجام می‌شود.</footer>
+<nav class="tabs" id="tabNav">
+  <a href="#calc" data-nav="calc"><span class="ic">🧮</span>محاسبه</a>
+  <a href="#soorat" data-nav="soorat"><span class="ic">📊</span>صورت وضعیت</a>
+  <a href="#asphalt" data-nav="asphalt"><span class="ic">🛣️</span>آسفالت</a>
+  <a href="#finance" data-nav="finance"><span class="ic">💰</span>مالی</a>
+  <a href="#units" data-nav="units"><span class="ic">📐</span>واحدها</a>
+  <a href="#date" data-nav="date"><span class="ic">📅</span>تاریخ</a>
+</nav>
+<script>
+'use strict';
+/* ================================================================
+   HesabCore — pure logic (no DOM). Extracted by test-hesab.mjs.
+   ================================================================ */
+const HesabCore = (() => {
+
+  /* ---------- number utils ---------- */
+  const FA_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+  const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+  function normalizeDigits(s) {
+    return String(s == null ? '' : s).replace(/[۰-۹]/g, ch => FA_DIGITS.indexOf(ch))
+                                     .replace(/[٠-٩]/g, ch => AR_DIGITS.indexOf(ch));
+  }
+  function parseNum(s) {
+    if (typeof s === 'number') return isFinite(s) ? s : null;
+    const t = normalizeDigits(s).replace(/[\/,_\s]/g, '');
+    if (t === '' || t === '-' || t === '.') return null;
+    const v = parseFloat(t);
+    return isFinite(v) ? v : null;
+  }
+  function groupInt(intStr) {
+    let s = String(intStr), neg = '';
+    if (s.charAt(0) === '-') { neg = '-'; s = s.slice(1); }
+    return neg + s.replace(/\B(?=(\d{3})+(?!\d))/g, '/');
+  }
+  /* Latin digits, «/» thousands separator, «.» decimal point; trims float noise. */
+  function fmt(x) {
+    if (x === null || x === undefined || typeof x !== 'number' || !isFinite(x)) return '—';
+    let v = Math.abs(x) < 1e12 ? Math.round(x * 1e10) / 1e10 : Math.round(x);
+    if (Object.is(v, -0)) v = 0;
+    const neg = v < 0; v = Math.abs(v);
+    let s = String(v);
+    if (s.indexOf('e') !== -1 || s.indexOf('E') !== -1) {
+      s = v.toFixed(10).replace(/0+$/, '').replace(/\.$/, '');
+    }
+    const parts = s.split('.');
+    let out = groupInt(parts[0]);
+    if (parts[1]) out += '.' + parts[1];
+    return (neg ? '-' : '') + out;
+  }
+  function fmtInt(x) {
+    if (x === null || x === undefined || typeof x !== 'number' || !isFinite(x)) return '—';
+    return groupInt(Math.round(x));
+  }
+  function trimNum(x) {
+    if (!isFinite(x)) return x;
+    return Math.abs(x) < 1e15 ? Math.round(x * 1e12) / 1e12 : x;
+  }
+
+  /* ---------- Persian number to words (0 .. trillions) ---------- */
+  const W_ONES = ['صفر','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه','ده','یازده','دوازده','سیزده','چهارده','پانزده','شانزده','هفده','هجده','نوزده'];
+  const W_TENS = ['','','بیست','سی','چهل','پنجاه','شصت','هفتاد','هشتاد','نود'];
+  const W_HUND = ['','صد','دویست','سیصد','چهارصد','پانصد','ششصد','هفتصد','هشتصد','نهصد'];
+  const W_SCALE = ['', ' هزار', ' میلیون', ' میلیارد', ' تریلیون'];
+  function threeDigits(n) {
+    const parts = [];
+    const h = Math.floor(n / 100), r = n % 100;
+    if (h) parts.push(W_HUND[h]);
+    if (r) {
+      if (r < 20) parts.push(W_ONES[r]);
+      else {
+        parts.push(W_TENS[Math.floor(r / 10)]);
+        if (r % 10) parts.push(W_ONES[r % 10]);
+      }
+    }
+    return parts.join(' و ');
+  }
+  function numToWordsFa(n) {
+    n = Math.floor(Math.abs(n));
+    if (n === 0) return 'صفر';
+    const groups = [];
+    let scale = 0;
+    while (n > 0 && scale < W_SCALE.length) {
+      const g = n % 1000;
+      if (g) groups.unshift(threeDigits(g) + W_SCALE[scale]);
+      n = Math.floor(n / 1000);
+      scale++;
+    }
+    return groups.join(' و ');
+  }
+
+  /* ---------- scientific calculator: hand-written parser (no eval) ---------- */
+  function factorial(n) {
+    if (n < 0 || Math.floor(n) !== n) throw new Error('factorial');
+    if (n > 170) return Infinity;
+    let r = 1;
+    for (let i = 2; i <= n; i++) r *= i;
+    return r;
+  }
+  function tokenize(src) {
+    const toks = [];
+    let i = 0;
+    const s = String(src).replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/√/g, 'sqrt');
+    while (i < s.length) {
+      const c = s[i];
+      if (c === ' ' || c === '\t' || c === '\n') { i++; continue; }
+      if (/[0-9.]/.test(c)) {
+        let j = i;
+        while (j < s.length && /[0-9.]/.test(s[j])) j++;
+        const v = parseFloat(s.slice(i, j));
+        if (!isFinite(v)) throw new Error('number');
+        toks.push({ t: 'num', v });
+        i = j; continue;
+      }
+      if (/[a-zA-Z]/.test(c)) {
+        let j = i;
+        while (j < s.length && /[a-zA-Z]/.test(s[j])) j++;
+        toks.push({ t: 'id', v: s.slice(i, j) });
+        i = j; continue;
+      }
+      if ('+-*/^!%(),'.indexOf(c) !== -1) { toks.push({ t: c }); i++; continue; }
+      throw new Error('char');
+    }
+    return toks;
+  }
+  function applyFunc(name, args, deg) {
+    const one = () => { if (args.length !== 1) throw new Error('args'); return args[0]; };
+    const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+    switch (name) {
+      case 'sin': { const x = one(); return Math.sin(deg ? x * D2R : x); }
+      case 'cos': { const x = one(); return Math.cos(deg ? x * D2R : x); }
+      case 'tan': { const x = one(); return Math.tan(deg ? x * D2R : x); }
+      case 'asin': { const x = one(); const r = Math.asin(x); return deg ? r * R2D : r; }
+      case 'acos': { const x = one(); const r = Math.acos(x); return deg ? r * R2D : r; }
+      case 'atan': { const x = one(); const r = Math.atan(x); return deg ? r * R2D : r; }
+      case 'sqrt': return Math.sqrt(one());
+      case 'ln': return Math.log(one());
+      case 'log': return Math.log10(one());
+      case 'abs': return Math.abs(one());
+      case 'exp': return Math.exp(one());
+      case 'round': return Math.round(one());
+      case 'floor': return Math.floor(one());
+      case 'ceil': return Math.ceil(one());
+      case 'min': if (!args.length) throw new Error('args'); return Math.min.apply(null, args);
+      case 'max': if (!args.length) throw new Error('args'); return Math.max.apply(null, args);
+      case 'pow': if (args.length !== 2) throw new Error('args'); return Math.pow(args[0], args[1]);
+      default: throw new Error('func');
+    }
+  }
+  function calcEval(src, opts) {
+    const deg = !opts || opts.deg !== false;
+    const ans = opts && typeof opts.ans === 'number' ? opts.ans : 0;
+    const toks = tokenize(src);
+    if (!toks.length) throw new Error('empty');
+    let pos = 0;
+    const peek = () => toks[pos];
+    function parseAddSub() {
+      let left = parseMulDiv();
+      while (peek() && (peek().t === '+' || peek().t === '-')) {
+        const op = toks[pos++].t;
+        const r = parseMulDiv();
+        /* smart percent: a + b% means a + a*b/100 (r.v is already b/100) */
+        const add = r.isPct ? left.v * r.v : r.v;
+        left = { v: op === '+' ? left.v + add : left.v - add, isPct: false };
+      }
+      return left;
+    }
+    function parseMulDiv() {
+      let left = parseUnary();
+      let isPct = left.isPct;
+      while (peek() && (peek().t === '*' || peek().t === '/')) {
+        const op = toks[pos++].t;
+        const r = parseUnary();
+        left = { v: op === '*' ? left.v * r.v : left.v / r.v, isPct: false };
+        isPct = false;
+      }
+      return { v: left.v, isPct };
+    }
+    function parseUnary() {
+      const tk = peek();
+      if (tk && tk.t === '-') { pos++; const r = parseUnary(); return { v: -r.v, isPct: false }; }
+      if (tk && tk.t === '+') { pos++; return parseUnary(); }
+      return parsePower();
+    }
+    function parsePower() {
+      const base = parsePostfix();
+      if (peek() && peek().t === '^') {
+        pos++;
+        const ex = parseUnary();
+        return { v: Math.pow(base.v, ex.v), isPct: false };
+      }
+      return base;
+    }
+    function parsePostfix() {
+      let r = parsePrimary();
+      let isPct = false;
+      while (peek() && (peek().t === '!' || peek().t === '%')) {
+        const op = toks[pos++].t;
+        if (op === '!') { r = { v: factorial(r.v) }; isPct = false; }
+        else { r = { v: r.v / 100 }; isPct = true; }
+      }
+      return { v: r.v, isPct };
+    }
+    function parsePrimary() {
+      const tk = toks[pos++];
+      if (!tk) throw new Error('eof');
+      if (tk.t === 'num') return { v: tk.v };
+      if (tk.t === '(') {
+        const r = parseAddSub();
+        if (!peek() || peek().t !== ')') throw new Error('paren');
+        pos++;
+        return { v: r.v };
+      }
+      if (tk.t === 'id') {
+        const name = tk.v;
+        if (peek() && peek().t === '(') {
+          pos++;
+          const args = [];
+          if (!(peek() && peek().t === ')')) {
+            args.push(parseAddSub().v);
+            while (peek() && peek().t === ',') { pos++; args.push(parseAddSub().v); }
+          }
+          if (!peek() || peek().t !== ')') throw new Error('paren');
+          pos++;
+          return { v: applyFunc(name, args, deg) };
+        }
+        if (name === 'pi') return { v: Math.PI };
+        if (name === 'e') return { v: Math.E };
+        if (name === 'ANS') return { v: ans };
+        throw new Error('name');
+      }
+      throw new Error('token');
+    }
+    const out = parseAddSub();
+    if (pos !== toks.length) throw new Error('trailing');
+    return trimNum(out.v);
+  }
+
+  /* ---------- صورت وضعیت ---------- */
+  function sooratCompute(gross, rows) {
+    const amounts = [];
+    let prev = 0, total = 0;
+    (rows || []).forEach(rw => {
+      const base = rw.base === 'after' ? Math.max(0, gross - prev) : gross;
+      const amt = Math.round(base * (rw.pct || 0) / 100);
+      amounts.push(amt);
+      prev += amt;
+      total += amt;
+    });
+    return { amounts, total, net: gross - total };
+  }
+  const SOORAT_DEFAULTS = [
+    { title: 'حسن انجام کار', pct: 6, base: 'gross' },
+    { title: 'بیمه تأمین اجتماعی', pct: 1.6, base: 'gross' },
+    { title: 'مالیات تکلیفی', pct: 3, base: 'after' }
+  ];
+
+  /* ---------- آسفالت ---------- */
+  function asphaltWeight(len, wid, manualArea, thickCm, density) {
+    let area = null;
+    if (manualArea !== null && manualArea !== undefined) area = manualArea;
+    else if (len !== null && wid !== null && len !== undefined && wid !== undefined) area = len * wid;
+    let volume = null, weight = null;
+    if (area !== null && thickCm !== null && thickCm !== undefined) volume = area * thickCm / 100;
+    if (volume !== null && density !== null && density !== undefined) weight = volume * density;
+    return { area, volume, weight };
+  }
+  function haulCompute(weight, pricePerTon, capacity, distance, rate) {
+    const out = { material: null, trips: null, haul: null, total: null };
+    if (weight === null || weight === undefined) return out;
+    if (pricePerTon !== null && pricePerTon !== undefined) out.material = weight * pricePerTon;
+    if (capacity !== null && capacity !== undefined && capacity > 0) out.trips = Math.ceil(weight / capacity);
+    if (distance !== null && distance !== undefined && rate !== null && rate !== undefined) out.haul = weight * distance * rate;
+    if (out.material !== null && out.haul !== null) out.total = out.material + out.haul;
+    return out;
+  }
+  function flooringCompute(pieceL, pieceW, wastePct, area, count) {
+    const out = { pieceArea: null, perM2: null, needed: null, areaOfCount: null };
+    if (pieceL === null || pieceW === null || pieceL === undefined || pieceW === undefined || pieceL <= 0 || pieceW <= 0) return out;
+    out.pieceArea = (pieceL / 100) * (pieceW / 100);
+    out.perM2 = 1 / out.pieceArea;
+    if (area !== null && area !== undefined) {
+      const w = wastePct === null || wastePct === undefined ? 0 : wastePct;
+      out.needed = Math.ceil(area / out.pieceArea * (1 + w / 100));
+    }
+    if (count !== null && count !== undefined) out.areaOfCount = count * out.pieceArea;
+    return out;
+  }
+  const CURB_NOTE_OFF = 'ردیف 131711 — تهیه و نصب جدول بتنی پیش‌ساخته';
+  const CURB_NOTE_ON  = 'ردیف 131816 — پرسی — سطح مقطع تا ۰٫۱۳ مترمربع (طول قطعه ۵۰ سانت) — واحد: مترمکعب';
+  function curbCompute(o) {
+    const h = o.h, len = o.pieceLen, t = o.t;
+    const rows = (o.rows === null || o.rows === undefined || o.rows <= 0) ? 1 : o.rows;
+    let count = o.count;
+    if (o.path !== null && o.path !== undefined && len) count = o.path / (len / 100);
+    const out = { effCount: count, rows, totalPieces: null, perRowLen: null, totalLen: null, lengthText: '—', volume: null, weight: null, total: null, note: o.press ? CURB_NOTE_ON : CURB_NOTE_OFF };
+    if (count === null || count === undefined) return out;
+    out.totalPieces = rows * count;
+    out.perRowLen = count * (len / 100);
+    out.totalLen = out.perRowLen * rows;
+    out.lengthText = rows > 1 ? (fmt(out.perRowLen) + '×' + fmt(rows) + '=' + fmt(out.totalLen)) : fmt(out.totalLen);
+    if (h !== null && h !== undefined && t !== null && t !== undefined) {
+      out.volume = out.totalPieces * (h / 100) * (len / 100) * (t / 100);
+      out.weight = out.volume * 2.4;
+    }
+    if (o.pricePiece !== null && o.pricePiece !== undefined) out.total = out.totalPieces * o.pricePiece;
+    else if (o.priceM3 !== null && o.priceM3 !== undefined && out.volume !== null) out.total = out.volume * o.priceM3;
+    return out;
+  }
+
+  /* ---------- مالی ---------- */
+  function loanCompute(P, ratePct, months) {
+    if (P === null || P === undefined || !months) return { payment: null, total: null, interest: null };
+    let payment;
+    const r = (ratePct || 0) / 1200;
+    if (r === 0) payment = P / months;
+    else payment = P * r / (1 - Math.pow(1 + r, -months));
+    const total = payment * months;
+    return { payment, total, interest: total - P };
+  }
+  function discountCompute(F, ratePct, days) {
+    if (F === null || F === undefined || days === null || days === undefined) return { pv: null, discount: null };
+    const pv = F / (1 + (ratePct || 0) / 100 * days / 365);
+    return { pv, discount: F - pv };
+  }
+  function depositCompute(P, ratePct, days) {
+    if (P === null || P === undefined) return { profit: null, monthly: null };
+    const monthly = P * (ratePct || 0) / 100 / 12;
+    const profit = (days === null || days === undefined) ? null : P * (ratePct || 0) / 100 * days / 365;
+    return { profit, monthly };
+  }
+  function percentOf(p, amount) {
+    if (p === null || p === undefined || amount === null || amount === undefined) return null;
+    return amount * p / 100;
+  }
+  function whatPct(x, y) {
+    if (x === null || x === undefined || !y) return null;
+    return x / y * 100;
+  }
+
+  /* ---------- واحدها (exactly 5 categories) ---------- */
+  const UNITS = [
+    { name: 'طول', units: [
+      { name: 'میلیمتر', f: 0.001 }, { name: 'سانتیمتر', f: 0.01 }, { name: 'متر', f: 1 },
+      { name: 'کیلومتر', f: 1000 }, { name: 'اینچ', f: 0.0254 }, { name: 'فوت', f: 0.3048 },
+      { name: 'یارد', f: 0.9144 }, { name: 'مایل', f: 1609.344 } ] },
+    { name: 'مساحت', units: [
+      { name: 'مترمربع', f: 1 }, { name: 'سانتیمترمربع', f: 0.0001 }, { name: 'هکتار', f: 10000 },
+      { name: 'کیلومترمربع', f: 1e6 }, { name: 'فوتمربع', f: 0.09290304 }, { name: 'آکر', f: 4046.8564224 } ] },
+    { name: 'حجم', units: [
+      { name: 'مترمکعب', f: 1 }, { name: 'سانتیمترمکعب', f: 0.000001 }, { name: 'لیتر', f: 0.001 },
+      { name: 'فوتمکعب', f: 0.028316846592 } ] },
+    { name: 'وزن', units: [
+      { name: 'گرم', f: 0.001 }, { name: 'کیلوگرم', f: 1 }, { name: 'تن', f: 1000 },
+      { name: 'پوند', f: 0.45359237 } ] },
+    { name: 'زمان', units: [
+      { name: 'ثانیه', f: 1 }, { name: 'دقیقه', f: 60 }, { name: 'ساعت', f: 3600 },
+      { name: 'روز', f: 86400 }, { name: 'هفته', f: 604800 }, { name: 'ماه (۳۰ روز)', f: 2592000 },
+      { name: 'سال (۳۶۵ روز)', f: 31536000 } ] }
+  ];
+  function unitConvert(catIdx, value, fromIdx) {
+    const cat = UNITS[catIdx];
+    if (!cat || value === null || value === undefined || !cat.units[fromIdx]) return null;
+    const base = value * cat.units[fromIdx].f;
+    return cat.units.map(u => base / u.f);
+  }
+
+  /* ---------- تقویم جلالی (standard jalaali algorithm) ---------- */
+  const J_BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+  const jdiv = (a, b) => Math.trunc(a / b);
+  const jmod = (a, b) => a - Math.trunc(a / b) * b;
+  function jalCal(jy) {
+    const bl = J_BREAKS.length;
+    let gy = jy + 621, leapJ = -14, jp = J_BREAKS[0], jm, jump, leap, leapG, march, n, i;
+    if (jy < jp || jy >= J_BREAKS[bl - 1]) throw new Error('jalaali year out of range');
+    for (i = 1; i < bl; i += 1) {
+      jm = J_BREAKS[i];
+      jump = jm - jp;
+      if (jy < jm) break;
+      leapJ = leapJ + jdiv(jump, 33) * 8 + jdiv(jmod(jump, 33), 4);
+      jp = jm;
+    }
+    n = jy - jp;
+    leapJ = leapJ + jdiv(n, 33) * 8 + jdiv(jmod(n, 33) + 3, 4);
+    if (jmod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+    leapG = jdiv(gy, 4) - jdiv((jdiv(gy, 100) + 1) * 3, 4) - 150;
+    march = 20 + leapJ - leapG;
+    if (jump - n < 6) n = n - jump + jdiv(jump + 4, 33) * 33;
+    leap = jmod(jmod(n + 1, 33) - 1, 4);
+    if (leap === -1) leap = 4;
+    return { leap, gy, march };
+  }
+  function g2d(gy, gm, gd) {
+    let d = jdiv((gy + jdiv(gm - 8, 6) + 100100) * 1461, 4)
+          + jdiv(153 * jmod(gm + 9, 12) + 2, 5)
+          + gd - 34840408;
+    d = d - jdiv(jdiv(gy + 100100 + jdiv(gm - 8, 6), 100) * 3, 4) + 752;
+    return d;
+  }
+  function d2g(jdn) {
+    let j = 4 * jdn + 139361631;
+    j = j + jdiv(jdiv(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+    const i = jdiv(jmod(j, 1461), 4) * 5 + 308;
+    const gd = jdiv(jmod(i, 153), 5) + 1;
+    const gm = jmod(jdiv(i, 153), 12) + 1;
+    const gy = jdiv(j, 1461) - 100100 + jdiv(8 - gm, 6);
+    return { gy, gm, gd };
+  }
+  function j2d(jy, jm, jd) {
+    const r = jalCal(jy);
+    return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - jdiv(jm, 7) * (jm - 7) + jd - 1;
+  }
+  function d2j(jdn) {
+    const gy = d2g(jdn).gy;
+    let jy = gy - 621;
+    const r = jalCal(jy);
+    const jdn1f = g2d(gy, 3, r.march);
+    let jd, jm, k = jdn - jdn1f;
+    if (k >= 0) {
+      if (k <= 185) { jm = 1 + jdiv(k, 31); jd = jmod(k, 31) + 1; return { jy, jm, jd }; }
+      k -= 186;
+    } else {
+      jy -= 1;
+      k += 179;
+      if (r.leap === 1) k += 1;
+    }
+    jm = 7 + jdiv(k, 30);
+    jd = jmod(k, 30) + 1;
+    return { jy, jm, jd };
+  }
+  function toJalaali(gy, gm, gd) { return d2j(g2d(gy, gm, gd)); }
+  function toGregorian(jy, jm, jd) { return d2g(j2d(jy, jm, jd)); }
+  function isLeapJalaali(jy) { return jalCal(jy).leap === 0; }
+  function jalaliMonthDays(jy, jm) {
+    if (jm <= 6) return 31;
+    if (jm <= 11) return 30;
+    return isLeapJalaali(jy) ? 30 : 29;
+  }
+  function isValidJalaali(jy, jm, jd) {
+    return jy >= 1200 && jy <= 1600 && jm >= 1 && jm <= 12 && jd >= 1 && jd <= jalaliMonthDays(jy, jm);
+  }
+  function parseJalaali(str) {
+    const p = normalizeDigits(str).split(/[\/.\-]/).map(x => parseInt(x, 10));
+    if (p.length !== 3 || p.some(isNaN)) return null;
+    const d = { jy: p[0], jm: p[1], jd: p[2] };
+    return isValidJalaali(d.jy, d.jm, d.jd) ? d : null;
+  }
+  function parseGregorian(str) {
+    const p = normalizeDigits(str).split(/[\/.\-]/).map(x => parseInt(x, 10));
+    if (p.length !== 3 || p.some(isNaN)) return null;
+    const d = { gy: p[0], gm: p[1], gd: p[2] };
+    const dt = new Date(d.gy, d.gm - 1, d.gd);
+    if (dt.getFullYear() !== d.gy || dt.getMonth() !== d.gm - 1 || dt.getDate() !== d.gd) return null;
+    return d;
+  }
+  const WEEKDAYS_FA = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
+  function weekdayOfJalaali(jy, jm, jd) {
+    const g = toGregorian(jy, jm, jd);
+    return new Date(g.gy, g.gm - 1, g.gd).getDay(); /* 0=Sun .. 6=Sat */
+  }
+  function weekdayNameFa(jy, jm, jd) { return WEEKDAYS_FA[weekdayOfJalaali(jy, jm, jd)]; }
+  function isWorkingJdn(jdn) {
+    const g = d2g(jdn);
+    const day = new Date(g.gy, g.gm - 1, g.gd).getDay();
+    return day !== 4 && day !== 5; /* not Thursday (4) / Friday (5) */
+  }
+  function formatJalaali(d) {
+    const p2 = n => String(n).padStart(2, '0');
+    return d.jy + '/' + p2(d.jm) + '/' + p2(d.jd);
+  }
+  function formatGregorian(d) {
+    const p2 = n => String(n).padStart(2, '0');
+    return d.gy + '/' + p2(d.gm) + '/' + p2(d.gd);
+  }
+  function jalaliDiff(a, b) {
+    const d1 = j2d(a.jy, a.jm, a.jd), d2 = j2d(b.jy, b.jm, b.jd);
+    const days = d2 - d1;
+    let working = 0;
+    if (days > 0) {
+      for (let j = d1; j < d2; j++) if (isWorkingJdn(j)) working++;
+    } else if (days < 0) {
+      for (let j = d2; j < d1; j++) if (isWorkingJdn(j)) working++;
+      working = -working;
+    }
+    return { days, working };
+  }
+  function deadline(todayJ, n, workingOnly) {
+    let j = j2d(todayJ.jy, todayJ.jm, todayJ.jd);
+    if (workingOnly) {
+      let counted = 0;
+      while (counted < n) {
+        j++;
+        if (isWorkingJdn(j)) counted++;
+      }
+    } else {
+      j += n;
+    }
+    const d = d2j(j);
+    return { jy: d.jy, jm: d.jm, jd: d.jd, weekday: weekdayNameFa(d.jy, d.jm, d.jd) };
+  }
+  function deadlineText(todayJ, n, workingOnly) {
+    if (n === null || n === undefined || n < 0) return '—';
+    const d = deadline(todayJ, n, workingOnly);
+    const nTxt = n <= 999 ? numToWordsFa(n) : String(n);
+    return 'مهلت: ' + formatJalaali(d) + ' (' + d.weekday + ') — ' + nTxt + ' روز بعد';
+  }
+  function todayJalali(now) {
+    const t = now || new Date();
+    return toJalaali(t.getFullYear(), t.getMonth() + 1, t.getDate());
+  }
+
+  return {
+    fmt, fmtInt, parseNum, normalizeDigits, trimNum,
+    numToWordsFa,
+    calcEval, factorial,
+    sooratCompute, SOORAT_DEFAULTS,
+    asphaltWeight, haulCompute, flooringCompute, curbCompute, CURB_NOTE_OFF, CURB_NOTE_ON,
+    loanCompute, discountCompute, depositCompute, percentOf, whatPct,
+    UNITS, unitConvert,
+    toJalaali, toGregorian, isLeapJalaali, jalaliMonthDays, isValidJalaali,
+    parseJalaali, parseGregorian, formatJalaali, formatGregorian,
+    weekdayNameFa, weekdayOfJalaali, jalaliDiff, deadline, deadlineText, todayJalali
+  };
+})();
+if (typeof window !== 'undefined') window.HesabCore = HesabCore;
+
+/* ================================================================
+   UI layer — only runs in a browser (skipped by the Node harness).
+   ================================================================ */
+if (typeof document !== 'undefined') {
+  const C = HesabCore;
+  const $ = id => document.getElementById(id);
+  const store = (() => {
+    let mem = {};
+    try {
+      const raw = localStorage.getItem('hesabPwaV1');
+      if (raw) mem = JSON.parse(raw) || {};
+    } catch (e) { mem = {}; }
+    return {
+      get: () => mem,
+      save: patch => {
+        mem = Object.assign({}, mem, patch);
+        try { localStorage.setItem('hesabPwaV1', JSON.stringify(mem)); } catch (e) {}
+      }
+    };
+  })();
+  const val = id => { const e = $(id); return e ? C.parseNum(e.value) : null; };
+  const setOut = (id, v, f) => { const e = $(id); if (e) e.textContent = (v === null || v === undefined) ? '—' : (f || C.fmt)(v); };
+  function copyText(txt, btn) {
+    const done = () => {
+      if (!btn) return;
+      const old = btn.textContent;
+      btn.textContent = '✓ کپی شد';
+      setTimeout(() => { btn.textContent = old; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done).catch(() => fallback());
+    } else fallback();
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+  }
+
+  /* ---------- theme ---------- */
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    $('metaThemeColor').setAttribute('content', t === 'dark' ? '#0f1420' : '#eef1f6');
+    $('btnTheme').textContent = t === 'dark' ? '☾' : '☀';
+    store.save({ theme: t });
+  }
+  $('btnTheme').addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(cur);
+  });
+  /* ---------- hide / show bottom nav ---------- */
+  let navHidden = false;
+  $('btnNavHide').addEventListener('click', () => {
+    navHidden = !navHidden;
+    $('tabNav').style.display = navHidden ? 'none' : '';
+    document.body.style.paddingBottom = navHidden ? '18px' : '';
+    $('btnNavHide').textContent = navHidden ? '▴' : '▾';
+  });
+  /* ---------- routing ---------- */
+  const PAGES = ['calc', 'soorat', 'asphalt', 'finance', 'units', 'date'];
+  function route() {
+    let h = (location.hash || '#calc').replace('#', '');
+    if (PAGES.indexOf(h) === -1) h = 'calc';
+    PAGES.forEach(p => {
+      $('page-' + p).classList.toggle('active', p === h);
+    });
+    document.querySelectorAll('nav.tabs a').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('data-nav') === h);
+    });
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', route);
+
+  /* ---------- generic input persistence ---------- */
+  function collectInputs() {
+    const out = {};
+    document.querySelectorAll('input[id], select[id]').forEach(e => {
+      out[e.id] = e.type === 'checkbox' ? { c: e.checked } : { v: e.value };
+    });
+    return out;
+  }
+  function persist() { store.save({ inputs: collectInputs() }); }
+  function restoreInputs() {
+    const saved = store.get().inputs || {};
+    Object.keys(saved).forEach(id => {
+      const e = $(id);
+      if (!e) return;
+      if (e.type === 'checkbox') e.checked = !!saved[id].c;
+      else if (saved[id].v !== undefined) e.value = saved[id].v;
+    });
+  }
+
+  /* ================= calculator ================= */
+  let expr = '', calcAns = 0, calcMem = null, degMode = store.get().deg !== false;
+  let vibOn = store.get().vib !== false;
+  let justEvaled = false;
+  let historyCalc = Array.isArray(store.get().historyCalc) ? store.get().historyCalc : [];
+  function buzz() { if (vibOn && navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} } }
+  function dispExpr() {
+    return expr.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−').replace(/sqrt/g, '√');
+  }
+  function renderCalc() {
+    $('calcExpr').textContent = dispExpr();
+    $('calcMem').textContent = 'M: ' + (calcMem === null ? '—' : C.fmt(calcMem));
+    $('btnAngle').textContent = degMode ? 'درجه' : 'رادیان';
+    $('btnVib').textContent = vibOn ? '📳 ویبره: روشن' : '📳 ویبره: خاموش';
+  }
+  function renderHist() {
+    const box = $('histList');
+    if (!historyCalc.length) {
+      box.innerHTML = '<div class="empty">هنوز محاسبه‌ای ثبت نشده است</div>';
+      return;
+    }
+    box.innerHTML = historyCalc.slice().reverse().map(h =>
+      '<div class="hrow"><span>' + h.e + '</span><span class="r">= ' + h.r + '</span></div>').join('');
+  }
+  function currentVal() {
+    if (expr) {
+      try { return C.calcEval(expr, { deg: degMode, ans: calcAns }); } catch (e) { return calcAns; }
+    }
+    return calcAns;
+  }
+  function doEquals() {
+    if (!expr) return;
+    try {
+      const r = C.calcEval(expr, { deg: degMode, ans: calcAns });
+      calcAns = r;
+      historyCalc.push({ e: dispExpr(), r: C.fmt(r) });
+      if (historyCalc.length > 60) historyCalc = historyCalc.slice(-60);
+      store.save({ historyCalc });
+      renderHist();
+      $('calcRes').textContent = '= ' + C.fmt(r);
+      expr = String(C.trimNum(r));
+      justEvaled = true;
+    } catch (e) {
+      $('calcRes').textContent = 'خطا';
+    }
+    renderCalc();
+  }
+  function appendKey(k) {
+    if (justEvaled) {
+      if (/[0-9.]/.test(k) || k === '(' || /[a-zA-Z]/.test(k)) expr = '';
+      justEvaled = false;
+      $('calcRes').textContent = '';
+    }
+    expr += k;
+    renderCalc();
+  }
+  function backspace() {
+    if (!expr) return;
+    justEvaled = false;
+    const m = expr.match(/(sin|cos|tan|asin|acos|atan|sqrt|ln|log|abs|exp|round|floor|ceil|min|max|pow)\($/);
+    if (m) expr = expr.slice(0, expr.length - m[0].length);
+    else if (expr.endsWith('ANS')) expr = expr.slice(0, -3);
+    else if (expr.endsWith('pi')) expr = expr.slice(0, -2);
+    else expr = expr.slice(0, -1);
+    renderCalc();
+  }
+  $('numPad').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    buzz();
+    const k = b.getAttribute('data-k');
+    if (k === 'ac') { expr = ''; justEvaled = false; $('calcRes').textContent = ''; renderCalc(); }
+    else if (k === 'bs') backspace();
+    else if (k === 'eq') doEquals();
+    else appendKey(k);
+  });
+  $('fnPad').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    buzz();
+    const f = b.getAttribute('data-fn');
+    if (f === 'pow') appendKey('^');
+    else if (f === 'fact') appendKey('!');
+    else if (f === 'pi') appendKey('pi');
+    else if (f === 'e') appendKey('e');
+    else appendKey(f + '(');
+  });
+  $('memPad').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    buzz();
+    const m = b.getAttribute('data-mem');
+    if (m === 'MS') calcMem = currentVal();
+    else if (m === 'M+') calcMem = (calcMem || 0) + currentVal();
+    else if (m === 'M-') calcMem = (calcMem || 0) - currentVal();
+    else if (m === 'MR') { if (calcMem !== null) appendKey(String(C.trimNum(calcMem))); }
+    else if (m === 'ANS') appendKey('ANS');
+    renderCalc();
+  });
+  $('btnAngle').addEventListener('click', () => { degMode = !degMode; store.save({ deg: degMode }); renderCalc(); });
+  $('btnVib').addEventListener('click', () => { vibOn = !vibOn; store.save({ vib: vibOn }); renderCalc(); buzz(); });
+  $('btnHist').addEventListener('click', () => { $('histPanel').classList.toggle('open'); renderHist(); });
+  $('btnHistClear').addEventListener('click', () => { historyCalc = []; store.save({ historyCalc }); renderHist(); });
+  $('btnCopyRes').addEventListener('click', e => { copyText($('calcRes').textContent.replace(/^= /, '') || C.fmt(calcAns), e.currentTarget); });
+  document.addEventListener('keydown', e => {
+    if (!$('page-calc').classList.contains('active')) return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) return;
+    const k = e.key;
+    if (k === 'Enter' || k === '=') { e.preventDefault(); doEquals(); }
+    else if (k === 'Backspace') { e.preventDefault(); backspace(); }
+    else if (k === 'Escape') { expr = ''; $('calcRes').textContent = ''; renderCalc(); }
+    else if (/^[0-9.+\-*/%^!(),]$/.test(k)) { appendKey(k); }
+  });
+
+  /* ================= صورت وضعیت ================= */
+  let sooratRows = Array.isArray(store.get().sooratRows) && store.get().sooratRows.length
+    ? store.get().sooratRows
+    : C.SOORAT_DEFAULTS.map(r => ({ title: r.title, pct: String(r.pct), base: r.base }));
+  let lastSoorat = null;
+  function renderSooratRows() {
+    const box = $('soRows');
+    box.innerHTML = '';
+    sooratRows.forEach((rw, i) => {
+      const row = document.createElement('div');
+      row.className = 'so-row';
+      row.innerHTML =
+        '<input type="text" class="so-title" value="">' +
+        '<input type="text" class="so-pct ltr" inputmode="decimal" value="">' +
+        '<select class="so-base"><option value="gross">ناخالص</option><option value="after">پس از کسور قبلی</option></select>' +
+        '<span class="amt">0</span>' +
+        '<button type="button" class="so-del" title="حذف">✕</button>';
+      row.querySelector('.so-title').value = rw.title || '';
+      row.querySelector('.so-pct').value = rw.pct;
+      row.querySelector('.so-base').value = rw.base || 'gross';
+      row.querySelector('.so-del').addEventListener('click', () => {
+        sooratRows.splice(i, 1);
+        store.save({ sooratRows });
+        renderSooratRows();
+        computeSoorat();
+      });
+      box.appendChild(row);
+    });
+  }
+  function readSooratRows() {
+    const rows = [];
+    document.querySelectorAll('#soRows .so-row').forEach(row => {
+      rows.push({
+        title: row.querySelector('.so-title').value,
+        pct: row.querySelector('.so-pct').value,
+        base: row.querySelector('.so-base').value
+      });
+    });
+    return rows;
+  }
+  function computeSoorat() {
+    sooratRows = readSooratRows();
+    store.save({ sooratRows });
+    const grossRaw = val('soGross');
+    const gross = grossRaw === null ? 0 : grossRaw;
+    const calcRows = sooratRows.map(r => ({ pct: C.parseNum(r.pct) || 0, base: r.base }));
+    const res = C.sooratCompute(gross, calcRows);
+    document.querySelectorAll('#soRows .so-row .amt').forEach((s, i) => {
+      s.textContent = C.fmtInt(res.amounts[i] || 0);
+    });
+    $('soTotal').textContent = C.fmtInt(res.total);
+    $('soNet').textContent = C.fmtInt(res.net);
+    $('soWords').textContent = grossRaw === null ? '' :
+      'خالص پرداختی به حروف: ' + C.numToWordsFa(res.net) + ' ریال';
+    lastSoorat = { gross, rows: sooratRows, res };
+  }
+  $('soAdd').addEventListener('click', () => {
+    sooratRows = readSooratRows();
+    sooratRows.push({ title: '', pct: '', base: 'gross' });
+    store.save({ sooratRows });
+    renderSooratRows();
+    computeSoorat();
+    persist();
+  });
+  $('soRows').addEventListener('input', computeSoorat);
+  $('soRows').addEventListener('change', computeSoorat);
+  $('soCopy').addEventListener('click', e => {
+    if (!lastSoorat) computeSoorat();
+    const L = lastSoorat;
+    const lines = ['کسورات صورت وضعیت', 'مبلغ ناخالص: ' + C.fmtInt(L.gross) + ' ریال'];
+    L.rows.forEach((r, i) => {
+      lines.push((r.title || 'ردیف ' + (i + 1)) + ' (' + (r.pct || 0) + '٪): ' + C.fmtInt(L.res.amounts[i] || 0) + ' ریال');
+    });
+    lines.push('جمع کسورات: ' + C.fmtInt(L.res.total) + ' ریال');
+    lines.push('خالص پرداختی: ' + C.fmtInt(L.res.net) + ' ریال');
+    lines.push('به حروف: ' + C.numToWordsFa(L.res.net) + ' ریال');
+    copyText(lines.join('\n'), e.currentTarget);
+  });
+
+  /* ================= آسفالت ================= */
+  let lastAsphalt = null;
+  function computeAsphalt() {
+    const w = C.asphaltWeight(val('awLen'), val('awWid'), val('awArea'), val('awThick'), val('awDens'));
+    setOut('awOutArea', w.area);
+    setOut('awOutVol', w.volume);
+    setOut('awOutWeight', w.weight);
+    $('ahWeightNote').textContent = w.weight === null
+      ? 'وزن از کارت «وزن مصالح از حجم» خوانده می‌شود.'
+      : 'وزن از کارت بالا: ' + C.fmt(w.weight) + ' تن';
+    const haul = C.haulCompute(w.weight, val('ahPrice'), val('ahCap'), val('ahDist'), val('ahRate'));
+    setOut('ahMat', haul.material, C.fmtInt);
+    setOut('ahTrips', haul.trips, C.fmtInt);
+    setOut('ahCost', haul.haul, C.fmtInt);
+    setOut('ahTotal', haul.total, C.fmtInt);
+    const fl = C.flooringCompute(val('afPL'), val('afPW'), val('afWaste'), val('afArea'), val('afCount'));
+    setOut('afPiece', fl.pieceArea);
+    setOut('afPer', fl.perM2);
+    setOut('afNeed', fl.needed, C.fmtInt);
+    setOut('afAreaOf', fl.areaOfCount);
+    const path = val('acPath');
+    const curb = C.curbCompute({
+      h: val('acH'), pieceLen: val('acLen'), t: val('acT'),
+      count: val('acCount'), rows: val('acRows'), path,
+      pricePiece: val('acPricePiece'), priceM3: val('acPriceM3'),
+      press: $('acPress').checked
+    });
+    if (path !== null && curb.effCount !== null && curb.effCount !== undefined && document.activeElement !== $('acCount')) {
+      $('acCount').value = C.fmt(curb.effCount);
+    }
+    setOut('acTotalPieces', curb.totalPieces, C.fmtInt);
+    $('acLength').textContent = curb.totalPieces === null ? '—' : curb.lengthText;
+    setOut('acVol', curb.volume);
+    setOut('acWeight', curb.weight);
+    setOut('acTotal', curb.total, C.fmtInt);
+    $('acNote').textContent = 'آیتم فهرست‌بها راه ۱۴۰۴ (فصل ۱۳ — بتن پیش‌ساخته): ' + curb.note;
+    lastAsphalt = { w, haul, fl, curb };
+  }
+  $('awPreset').addEventListener('change', () => {
+    const v = $('awPreset').value;
+    if (v) { $('awDens').value = v; computeAsphalt(); persist(); }
+  });
+  document.querySelectorAll('[data-curb]').forEach(b => b.addEventListener('click', () => {
+    const parts = b.getAttribute('data-curb').split(',');
+    $('acH').value = parts[0];
+    $('acT').value = parts[1];
+    computeAsphalt();
+    persist();
+  }));
+  $('asCopy').addEventListener('click', e => {
+    if (!lastAsphalt) computeAsphalt();
+    const A = lastAsphalt, F = C.fmt, FI = C.fmtInt;
+    const lines = ['خلاصهٔ آسفالت و جدول',
+      'مساحت: ' + F(A.w.area) + ' م² — حجم: ' + F(A.w.volume) + ' م³ — وزن: ' + F(A.w.weight) + ' تن',
+      'مبلغ مصالح: ' + FI(A.haul.material) + ' ریال — سفر: ' + FI(A.haul.trips) + ' — حمل: ' + FI(A.haul.haul) + ' ریال — جمع کل: ' + FI(A.haul.total) + ' ریال',
+      'کفپوش: مساحت هر قطعه ' + F(A.fl.pieceArea) + ' م² — تعداد لازم: ' + FI(A.fl.needed) + ' — مساحت این تعداد: ' + F(A.fl.areaOfCount) + ' م²',
+      'جدول: کل قطعات ' + FI(A.curb.totalPieces) + ' — متراژ ' + A.curb.lengthText + ' متر — حجم بتن ' + F(A.curb.volume) + ' م³ — وزن ' + F(A.curb.weight) + ' تن — مبلغ کل ' + FI(A.curb.total) + ' ریال'];
+    copyText(lines.join('\n'), e.currentTarget);
+  });
+
+  /* ================= مالی ================= */
+  function computeFinance() {
+    const loan = C.loanCompute(val('flAmt'), val('flRate'), val('flMonths'));
+    setOut('flPay', loan.payment, C.fmtInt);
+    setOut('flTotal', loan.total, C.fmtInt);
+    setOut('flInt', loan.interest, C.fmtInt);
+    const disc = C.discountCompute(val('fdAmt'), val('fdRate'), val('fdDays'));
+    setOut('fdPV', disc.pv, C.fmtInt);
+    setOut('fdDisc', disc.discount, C.fmtInt);
+    const dep = C.depositCompute(val('fsAmt'), val('fsRate'), val('fsDays'));
+    setOut('fsProfit', dep.profit, C.fmtInt);
+    setOut('fsMonthly', dep.monthly, C.fmtInt);
+    setOut('fpVal', C.percentOf(val('fpP'), val('fpAmt')), C.fmtInt);
+    const wp = C.whatPct(val('fpX'), val('fpY'));
+    $('fpPct').textContent = wp === null ? '—' : C.fmt(wp) + '٪';
+  }
+
+  /* ================= واحدها ================= */
+  function buildUnitSelects() {
+    const catSel = $('unCat');
+    catSel.innerHTML = C.UNITS.map((c, i) => '<option value="' + i + '">' + c.name + '</option>').join('');
+    buildUnitFromTo();
+  }
+  function buildUnitFromTo() {
+    const ci = parseInt($('unCat').value || '0', 10);
+    const units = C.UNITS[ci].units;
+    const opts = units.map((u, i) => '<option value="' + i + '">' + u.name + '</option>').join('');
+    const prevF = $('unFrom').value, prevT = $('unTo').value;
+    $('unFrom').innerHTML = opts;
+    $('unTo').innerHTML = opts;
+    $('unFrom').value = (prevF !== '' && units[prevF]) ? prevF : (ci === 0 ? '2' : '0');
+    $('unTo').value = (prevT !== '' && units[prevT]) ? prevT : '1';
+  }
+  function computeUnits() {
+    const ci = parseInt($('unCat').value || '0', 10);
+    const fi = parseInt($('unFrom').value || '0', 10);
+    const ti = parseInt($('unTo').value || '0', 10);
+    const v = val('unVal');
+    const all = C.unitConvert(ci, v, fi);
+    if (!all) { $('unResult').textContent = '—'; $('unList').innerHTML = ''; return; }
+    $('unResult').textContent = C.fmt(all[ti]) + ' ' + C.UNITS[ci].units[ti].name;
+    $('unList').innerHTML = C.UNITS[ci].units.map((u, i) =>
+      '<div class="outrow"><span class="k">' + u.name + '</span><span class="v">' + C.fmt(all[i]) + '</span></div>').join('');
+  }
+  $('unCat').addEventListener('change', () => { buildUnitFromTo(); computeUnits(); persist(); });
+
+  /* ================= تاریخ ================= */
+  function computeDates() {
+    const tj = C.todayJalali();
+    $('todayLine').textContent = 'امروز: ' + C.formatJalaali(tj) + ' (' + C.weekdayNameFa(tj.jy, tj.jm, tj.jd) + ')';
+    const a = C.parseJalaali($('ddFrom').value), b = C.parseJalaali($('ddTo').value);
+    if (a && b) {
+      const d = C.jalaliDiff(a, b);
+      $('ddDays').textContent = C.fmtInt(d.days);
+      $('ddWork').textContent = C.fmtInt(d.working);
+    } else {
+      $('ddDays').textContent = '—';
+      $('ddWork').textContent = '—';
+    }
+    const n = val('dlN');
+    $('dlOut').textContent = n === null ? '—' : C.deadlineText(tj, Math.floor(n), $('dlWork').checked);
+  }
+  $('dcJ2G').addEventListener('click', () => {
+    const j = C.parseJalaali($('dcJ').value);
+    if (!j) { $('dcMsg').textContent = 'تاریخ شمسی معتبر نیست'; return; }
+    const g = C.toGregorian(j.jy, j.jm, j.jd);
+    $('dcG').value = C.formatGregorian(g);
+    $('dcMsg').textContent = C.formatJalaali(j) + ' = ' + C.formatGregorian(g) + ' (' + C.weekdayNameFa(j.jy, j.jm, j.jd) + ')';
+    persist();
+  });
+  $('dcG2J').addEventListener('click', () => {
+    const g = C.parseGregorian($('dcG').value);
+    if (!g) { $('dcMsg').textContent = 'تاریخ میلادی معتبر نیست'; return; }
+    const j = C.toJalaali(g.gy, g.gm, g.gd);
+    $('dcJ').value = C.formatJalaali(j);
+    $('dcMsg').textContent = C.formatGregorian(g) + ' = ' + C.formatJalaali(j) + ' (' + C.weekdayNameFa(j.jy, j.jm, j.jd) + ')';
+    persist();
+  });
+  $('dcToday').addEventListener('click', () => {
+    const now = new Date();
+    const j = C.todayJalali(now);
+    $('dcJ').value = C.formatJalaali(j);
+    $('dcG').value = C.formatGregorian({ gy: now.getFullYear(), gm: now.getMonth() + 1, gd: now.getDate() });
+    $('dcMsg').textContent = 'امروز: ' + C.formatJalaali(j) + ' (' + C.weekdayNameFa(j.jy, j.jm, j.jd) + ')';
+    persist();
+  });
+
+  /* ---------- global wiring: format + compute + persist ---------- */
+  function formatMoneyField(e) {
+    if (!e.classList || !e.classList.contains('money')) return;
+    const digits = C.normalizeDigits(e.value).replace(/[^\d]/g, '');
+    e.value = digits ? C.fmt(parseInt(digits, 10)) : '';
+  }
+  function computeFor(target) {
+    const sec = target.closest ? target.closest('section.page') : null;
+    if (!sec) return;
+    const p = sec.getAttribute('data-page');
+    if (p === 'soorat') computeSoorat();
+    else if (p === 'asphalt') computeAsphalt();
+    else if (p === 'finance') computeFinance();
+    else if (p === 'units') computeUnits();
+    else if (p === 'date') computeDates();
+  }
+  document.addEventListener('input', e => {
+    if (e.target.id === 'soGross') { formatMoneyField(e.target); computeSoorat(); persist(); return; }
+    formatMoneyField(e.target);
+    computeFor(e.target);
+    persist();
+  });
+  document.addEventListener('change', e => {
+    computeFor(e.target);
+    persist();
+  });
+
+  /* ---------- init ---------- */
+  applyTheme(store.get().theme === 'light' ? 'light' : 'dark');
+  buildUnitSelects();
+  renderSooratRows();
+  restoreInputs();
+  buildUnitFromTo();
+  route();
+  renderCalc();
+  renderHist();
+  computeSoorat();
+  computeAsphalt();
+  computeFinance();
+  computeUnits();
+  computeDates();
+}
+</script>
+</body>
+</html>
