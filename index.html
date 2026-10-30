@@ -126,8 +126,6 @@ nav.tabs a.active{color:var(--accent); background:var(--card2);}
 .calc-mem{font-size:12px; color:var(--muted); direction:ltr; text-align:left;}
 .calc-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0;}
 .calc-tools .btn{flex:1; white-space:nowrap;}
-/* hidden native switch used only for the iOS haptic tick (rendered, but invisible) */
-.haptic-hidden{position:absolute; left:0; top:0; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none;}
 .padarea{flex:1 1 0; min-height:0; display:flex; flex-direction:column; margin-top:8px;}
 .pad{display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(5,1fr); gap:8px; direction:ltr; flex:1 1 0; min-height:0;}
 .pad button{
@@ -244,11 +242,10 @@ footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--mu
     </div>
     <div class="calc-tools">
       <button class="btn small" id="btnAngle" type="button">درجه</button>
-      <button class="btn small" id="btnVib" type="button">📳 ویبره: روشن</button>
+      <button class="btn small" id="btnSnd" type="button">🔊 صدا: روشن</button>
       <button class="btn small" id="btnHist" type="button">🕘 تاریخچه</button>
       <button class="btn small" id="btnCopyRes" type="button">⧉ کپی نتیجه</button>
     </div>
-    <label class="haptic-hidden" id="iosHapticLbl" aria-hidden="true"><input type="checkbox" switch id="iosHapticSw" tabindex="-1"></label>
     <div class="mpad" id="memPad">
       <button type="button" data-mem="MS">MS</button>
       <button type="button" data-mem="M+">M+</button>
@@ -1184,17 +1181,32 @@ if (typeof document !== 'undefined') {
 
   /* ================= calculator ================= */
   let expr = '', calcAns = 0, calcMem = null, degMode = store.get().deg !== false;
-  let vibOn = store.get().vib !== false;
+  let sndOn = store.get().snd !== false;
   let justEvaled = false;
   let historyCalc = Array.isArray(store.get().historyCalc) ? store.get().historyCalc : [];
-  function buzz() {
-    if (!vibOn) return;
+  /* Very subtle WebAudio key tick — no audio files, context created lazily
+     inside the key handler so iOS unlocks it with the user gesture. */
+  let actx = null;
+  function tick(deep) {
+    if (!sndOn) return;
     try {
-      if (navigator.vibrate) { navigator.vibrate(10); return; }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!actx) actx = new AC();
+      if (actx.state === 'suspended') { try { actx.resume(); } catch (e) {} }
+      const t = actx.currentTime;
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      const dur = deep ? 0.05 : 0.035;
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(deep ? 1200 : 2000, t);
+      g.gain.setValueAtTime(deep ? 0.06 : 0.05, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g);
+      g.connect(actx.destination);
+      o.start(t);
+      o.stop(t + dur + 0.02);
     } catch (e) {}
-    /* iOS has no Vibration API: flipping a hidden native switch ticks the
-       Taptic Engine in Safari (iOS 17.4+); everywhere else it is a silent no-op. */
-    try { const l = $('iosHapticLbl'); if (l) l.click(); } catch (e) {}
   }
   function dispExpr() {
     return expr.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−').replace(/sqrt/g, '√');
@@ -1204,7 +1216,7 @@ if (typeof document !== 'undefined') {
     $('calcMem').textContent = 'M: ' + (calcMem === null ? '—' : C.fmt(calcMem));
     const mv = $('calcMemVal'); if (mv) mv.textContent = 'M: ' + (calcMem === null ? '—' : C.fmt(calcMem));
     $('btnAngle').textContent = degMode ? 'درجه' : 'رادیان';
-    $('btnVib').textContent = vibOn ? '📳 ویبره: روشن' : '📳 ویبره: خاموش';
+    $('btnSnd').textContent = sndOn ? '🔊 صدا: روشن' : '🔊 صدا: خاموش';
   }
   function renderHist() {
     const box = $('histList');
@@ -1259,7 +1271,7 @@ if (typeof document !== 'undefined') {
   }
   $('numPad').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
-    buzz();
+    tick(b.getAttribute('data-k') === 'eq');
     const k = b.getAttribute('data-k');
     if (k === 'ac') { expr = ''; justEvaled = false; $('calcRes').textContent = ''; renderCalc(); }
     else if (k === 'bs') backspace();
@@ -1268,7 +1280,7 @@ if (typeof document !== 'undefined') {
   });
   $('fnPad').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
-    buzz();
+    tick();
     if (b.getAttribute('data-pad')) { setPad('basic'); return; }
     const k = b.getAttribute('data-k');
     if (k) {
@@ -1286,7 +1298,7 @@ if (typeof document !== 'undefined') {
   $('memPad').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     if (!b.getAttribute('data-mem')) return;
-    buzz();
+    tick();
     const m = b.getAttribute('data-mem');
     if (m === 'MS') calcMem = currentVal();
     else if (m === 'M+') calcMem = (calcMem || 0) + currentVal();
@@ -1303,10 +1315,10 @@ if (typeof document !== 'undefined') {
     $('btnPadFn').textContent = calcPad === 'sci' ? '123' : 'توابع f(x)';
   }
   function setPad(p) { calcPad = p; store.save({ calcPad: p }); applyPad(); }
-  $('btnPadFn').addEventListener('click', () => { buzz(); setPad(calcPad === 'sci' ? 'basic' : 'sci'); });
-  $('btnBs').addEventListener('click', () => { buzz(); backspace(); });
+  $('btnPadFn').addEventListener('click', () => { tick(); setPad(calcPad === 'sci' ? 'basic' : 'sci'); });
+  $('btnBs').addEventListener('click', () => { tick(); backspace(); });
   $('btnAngle').addEventListener('click', () => { degMode = !degMode; store.save({ deg: degMode }); renderCalc(); });
-  $('btnVib').addEventListener('click', () => { vibOn = !vibOn; store.save({ vib: vibOn }); renderCalc(); buzz(); });
+  $('btnSnd').addEventListener('click', () => { sndOn = !sndOn; store.save({ snd: sndOn }); renderCalc(); tick(); });
   $('btnHist').addEventListener('click', () => { $('histPanel').classList.toggle('open'); renderHist(); });
   $('btnHistClear').addEventListener('click', () => { historyCalc = []; store.save({ historyCalc }); renderHist(); });
   $('btnCopyRes').addEventListener('click', e => { copyText($('calcRes').textContent.replace(/^= /, '') || C.fmt(calcAns), e.currentTarget); });
