@@ -126,25 +126,43 @@ nav.tabs a.active{color:var(--accent); background:var(--card2);}
 .calc-mem{font-size:12px; color:var(--muted); direction:ltr; text-align:left;}
 .calc-tools{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0;}
 .calc-tools .btn{flex:1; white-space:nowrap;}
-.pad{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px;}
+.padarea{flex:1 1 0; min-height:0; display:flex; flex-direction:column; margin-top:8px;}
+.pad{display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(5,1fr); gap:8px; direction:ltr; flex:1 1 0; min-height:0;}
 .pad button{
-  min-height:52px; font-size:19px; border-radius:12px; border:1px solid var(--line);
+  min-height:52px; font-size:20px; border-radius:14px; border:1px solid var(--line);
   background:var(--card2); color:var(--text); cursor:pointer; font-family:inherit;
 }
 .pad button.op{color:var(--accent); font-weight:bold;}
 .pad button.eq{background:var(--accent); color:#1a1405; font-weight:bold; border-color:var(--accent);}
 .pad button:active{transform:scale(.96);}
-.fpad{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px;}
+.fpad{display:grid; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(5,1fr); gap:6px; direction:ltr; flex:1 1 0; min-height:0;}
 .fpad button{
-  min-height:44px; font-size:13.5px; border-radius:10px; border:1px solid var(--line);
+  min-height:52px; font-size:15.5px; border-radius:12px; border:1px solid var(--line);
   background:var(--card); color:var(--text); cursor:pointer; font-family:inherit; direction:ltr;
 }
+.fpad button.op{color:var(--accent); font-weight:bold;}
 .fpad button:active{transform:scale(.96); border-color:var(--accent2);}
-.mpad{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:8px;}
+.mpad{display:flex; gap:6px; margin-top:8px; align-items:center;}
 .mpad button{
-  min-height:44px; font-size:13.5px; border-radius:10px; border:1px dashed var(--line);
-  background:transparent; color:var(--muted); cursor:pointer; font-family:inherit;
+  flex:1; min-height:36px; height:36px; font-size:12.5px; border-radius:999px; border:1px dashed var(--line);
+  background:transparent; color:var(--muted); cursor:pointer; font-family:inherit; direction:ltr; padding:0 4px;
 }
+.mpad button:active{border-color:var(--accent); color:var(--accent);}
+.memval{font-size:12px; color:var(--muted); direction:ltr; white-space:nowrap; padding:0 2px;}
+.padfn{
+  flex:0 0 auto; min-height:36px; height:36px; font-size:12.5px; border-radius:999px; padding:0 12px;
+  border:1px solid var(--accent); background:var(--card2); color:var(--accent);
+  cursor:pointer; font-family:inherit; white-space:nowrap;
+}
+.padfn:active{transform:scale(.96);}
+.calc-memrow{display:flex; align-items:center; gap:8px;}
+.calc-memrow .calc-mem{flex:1; min-width:0;}
+.bsbtn{
+  min-width:42px; min-height:30px; height:30px; padding:0 10px; border-radius:8px;
+  border:1px solid var(--line); background:var(--card2); color:var(--text);
+  font-size:15px; cursor:pointer; font-family:inherit;
+}
+.bsbtn:active{transform:scale(.95); border-color:var(--accent); color:var(--accent);}
 .hist{display:none; margin-top:10px; border-top:1px dashed var(--line); padding-top:8px;}
 .hist.open{display:block;}
 .hist .hrow{
@@ -185,12 +203,19 @@ body:has(#page-calc.active) footer.app{display:none;}
 #page-calc .calc-expr{min-height:24px;}
 #page-calc .calc-res{min-height:20px;}
 #page-calc .calc-tools{flex:0 0 auto; margin:8px 0 2px;}
-#page-calc .mpad{flex:1 1 0; min-height:0; grid-auto-rows:1fr; margin-top:6px;}
-#page-calc .fpad{flex:4 1 0; min-height:0; grid-auto-rows:1fr; margin-top:6px;}
-#page-calc .pad{flex:6 1 0; min-height:0; grid-auto-rows:1fr; margin-top:6px;}
-#page-calc .mpad button, #page-calc .fpad button, #page-calc .pad button{height:100%; min-height:0;}
+#page-calc .mpad{flex:0 0 auto; margin-top:6px;}
+#page-calc .padarea{flex:1 1 0; min-height:0; margin-top:8px;}
+#page-calc .pad button, #page-calc .fpad button{height:100%; min-height:0;}
 #page-calc .hist{flex:0 1 auto; min-height:0; max-height:34%; overflow-y:auto;}
-#page-calc .hint{flex:0 1 auto; min-height:0; overflow-y:auto;}
+#page-calc .hint{flex:0 1 auto; min-height:0; max-height:52px; overflow-y:auto;}
+@media (max-height:560px){
+  body:has(#page-calc.active){overflow:visible;}
+  body:has(#page-calc.active) footer.app{display:block;}
+  #page-calc.active{height:auto;}
+  #page-calc .padarea{flex:none;}
+  #page-calc .pad, #page-calc .fpad{grid-template-rows:none; grid-auto-rows:minmax(44px,auto);}
+  #page-calc .pad button, #page-calc .fpad button{height:auto; min-height:44px;}
+}
 footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--muted); font-size:11.5px; text-align:center;}
 </style>
 </head>
@@ -208,7 +233,10 @@ footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--mu
 <section class="page" id="page-calc" data-page="calc">
   <div class="card">
     <div class="calc-display">
-      <div class="calc-mem" id="calcMem">M: —</div>
+      <div class="calc-memrow">
+        <div class="calc-mem" id="calcMem">M: —</div>
+        <button class="bsbtn" id="btnBs" type="button" title="پاک‌کردن رقم" aria-label="پاک‌کردن رقم">⌫</button>
+      </div>
       <div class="calc-expr" id="calcExpr"></div>
       <div class="calc-res" id="calcRes"></div>
     </div>
@@ -224,6 +252,31 @@ footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--mu
       <button type="button" data-mem="M-">M−</button>
       <button type="button" data-mem="MR">MR</button>
       <button type="button" data-mem="ANS">ANS</button>
+      <button type="button" class="padfn" id="btnPadFn">توابع f(x)</button>
+      <span class="memval" id="calcMemVal">M: —</span>
+    </div>
+    <div class="padarea" id="padArea">
+    <div class="pad" id="numPad">
+      <button type="button" data-k="ac" class="op">AC</button>
+      <button type="button" data-k="(" class="op">(</button>
+      <button type="button" data-k=")" class="op">)</button>
+      <button type="button" data-k="/" class="op">÷</button>
+      <button type="button" data-k="7">7</button>
+      <button type="button" data-k="8">8</button>
+      <button type="button" data-k="9">9</button>
+      <button type="button" data-k="*" class="op">×</button>
+      <button type="button" data-k="4">4</button>
+      <button type="button" data-k="5">5</button>
+      <button type="button" data-k="6">6</button>
+      <button type="button" data-k="-" class="op">−</button>
+      <button type="button" data-k="1">1</button>
+      <button type="button" data-k="2">2</button>
+      <button type="button" data-k="3">3</button>
+      <button type="button" data-k="+" class="op">+</button>
+      <button type="button" data-k="%" class="op">%</button>
+      <button type="button" data-k="0">0</button>
+      <button type="button" data-k=".">.</button>
+      <button type="button" data-k="eq" class="eq">=</button>
     </div>
     <div class="fpad" id="fnPad">
       <button type="button" data-fn="sin">sin</button>
@@ -232,9 +285,9 @@ footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--mu
       <button type="button" data-fn="asin">asin</button>
       <button type="button" data-fn="acos">acos</button>
       <button type="button" data-fn="atan">atan</button>
-      <button type="button" data-fn="sqrt">√</button>
       <button type="button" data-fn="ln">ln</button>
       <button type="button" data-fn="log">log</button>
+      <button type="button" data-fn="sqrt">√</button>
       <button type="button" data-fn="pow">xʸ</button>
       <button type="button" data-fn="pi">π</button>
       <button type="button" data-fn="e">e</button>
@@ -246,30 +299,12 @@ footer.app{max-width:720px; margin:0 auto; padding:4px 14px 10px; color:var(--mu
       <button type="button" data-fn="round">round</button>
       <button type="button" data-fn="floor">floor</button>
       <button type="button" data-fn="ceil">ceil</button>
-    </div>
-    <div class="pad" id="numPad">
-      <button type="button" data-k="ac" class="op">AC</button>
-      <button type="button" data-k="bs" class="op">⌫</button>
       <button type="button" data-k="(" class="op">(</button>
       <button type="button" data-k=")" class="op">)</button>
-      <button type="button" data-k="7">7</button>
-      <button type="button" data-k="8">8</button>
-      <button type="button" data-k="9">9</button>
-      <button type="button" data-k="/" class="op">÷</button>
-      <button type="button" data-k="4">4</button>
-      <button type="button" data-k="5">5</button>
-      <button type="button" data-k="6">6</button>
-      <button type="button" data-k="*" class="op">×</button>
-      <button type="button" data-k="1">1</button>
-      <button type="button" data-k="2">2</button>
-      <button type="button" data-k="3">3</button>
-      <button type="button" data-k="-" class="op">−</button>
-      <button type="button" data-k="0">0</button>
-      <button type="button" data-k=".">.</button>
-      <button type="button" data-k="%" class="op">%</button>
-      <button type="button" data-k="eq" class="eq">=</button>
-      <button type="button" data-k="+">+</button>
-      <button type="button" data-k=",">,</button>
+      <button type="button" data-k="," class="op">,</button>
+      <button type="button" data-k="bs" class="op">⌫</button>
+      <button type="button" data-pad="basic" class="op">123</button>
+    </div>
     </div>
     <div class="hist" id="histPanel">
       <div class="btnrow" style="margin-top:0;">
@@ -1156,6 +1191,7 @@ if (typeof document !== 'undefined') {
   function renderCalc() {
     $('calcExpr').textContent = dispExpr();
     $('calcMem').textContent = 'M: ' + (calcMem === null ? '—' : C.fmt(calcMem));
+    const mv = $('calcMemVal'); if (mv) mv.textContent = 'M: ' + (calcMem === null ? '—' : C.fmt(calcMem));
     $('btnAngle').textContent = degMode ? 'درجه' : 'رادیان';
     $('btnVib').textContent = vibOn ? '📳 ویبره: روشن' : '📳 ویبره: خاموش';
   }
@@ -1222,6 +1258,13 @@ if (typeof document !== 'undefined') {
   $('fnPad').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     buzz();
+    if (b.getAttribute('data-pad')) { setPad('basic'); return; }
+    const k = b.getAttribute('data-k');
+    if (k) {
+      if (k === 'bs') backspace();
+      else appendKey(k);
+      return;
+    }
     const f = b.getAttribute('data-fn');
     if (f === 'pow') appendKey('^');
     else if (f === 'fact') appendKey('!');
@@ -1231,6 +1274,7 @@ if (typeof document !== 'undefined') {
   });
   $('memPad').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
+    if (!b.getAttribute('data-mem')) return;
     buzz();
     const m = b.getAttribute('data-mem');
     if (m === 'MS') calcMem = currentVal();
@@ -1240,6 +1284,16 @@ if (typeof document !== 'undefined') {
     else if (m === 'ANS') appendKey('ANS');
     renderCalc();
   });
+  /* ---------- basic / scientific pad toggle ---------- */
+  let calcPad = store.get().calcPad === 'sci' ? 'sci' : 'basic';
+  function applyPad() {
+    $('numPad').style.display = calcPad === 'basic' ? 'grid' : 'none';
+    $('fnPad').style.display = calcPad === 'sci' ? 'grid' : 'none';
+    $('btnPadFn').textContent = calcPad === 'sci' ? '123' : 'توابع f(x)';
+  }
+  function setPad(p) { calcPad = p; store.save({ calcPad: p }); applyPad(); }
+  $('btnPadFn').addEventListener('click', () => { buzz(); setPad(calcPad === 'sci' ? 'basic' : 'sci'); });
+  $('btnBs').addEventListener('click', () => { buzz(); backspace(); });
   $('btnAngle').addEventListener('click', () => { degMode = !degMode; store.save({ deg: degMode }); renderCalc(); });
   $('btnVib').addEventListener('click', () => { vibOn = !vibOn; store.save({ vib: vibOn }); renderCalc(); buzz(); });
   $('btnHist').addEventListener('click', () => { $('histPanel').classList.toggle('open'); renderHist(); });
@@ -1515,6 +1569,7 @@ if (typeof document !== 'undefined') {
   restoreInputs();
   buildUnitFromTo();
   route();
+  applyPad();
   renderCalc();
   renderHist();
   computeSoorat();
